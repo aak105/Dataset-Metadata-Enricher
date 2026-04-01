@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dataset Metadata Augmenter</title>
+  <meta name="description" content="AI-powered metadata augmentation for research datasets from government and open data platforms">
+  <meta name="author" content="Aakash">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  
+  <style>
+    /* ============================================
+       CSS VARIABLES & THEME
+       ============================================ */
+    :root {
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f7f7f5;
+      --color-background-tertiary: #efefec;
+      --color-background-info: #e6f1fb;
+      --color-background-success: #eaf3de;
+      --color-background-warning: #faeeda;
+      --color-background-danger: #fcebeb;
+      
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #666666;
+      --color-text-tertiary: #999999;
+      --color-text-info: #185fa5;
+      --color-text-success: #3b6d11;
+      --color-text-warning: #854f0b;
+      --color-text-danger: #a32d2d;
+      
+      --color-border-primary: rgba(0, 0, 0, 0.4);
+      --color-border-secondary: rgba(0, 0, 0, 0.3);
+      --color-border-tertiary: rgba(0, 0, 0, 0.15);
+      
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-background-primary: #1a1a1a;
+        --color-background-secondary: #252525;
+        --color-background-tertiary: #303030;
+        --color-background-info: #0c447c;
+        --color-background-success: #27500a;
+        --color-background-warning: #633806;
+        --color-background-danger: #791f1f;
+        
+        --color-text-primary: #f0f0f0;
+        --color-text-secondary: #a0a0a0;
+        --color-text-tertiary: #707070;
+        --color-text-info: #85b7eb;
+        --color-text-success: #c0dd97;
+        --color-text-warning: #fac775;
+        --color-text-danger: #f09595;
+        
+        --color-border-primary: rgba(255, 255, 255, 0.4);
+        --color-border-secondary: rgba(255, 255, 255, 0.3);
+        --color-border-tertiary: rgba(255, 255, 255, 0.15);
+      }
+    }
+    
+    /* ============================================
+       RESET & BASE STYLES
+       ============================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-background-tertiary);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    /* ============================================
+       LAYOUT
+       ============================================ */
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .app-header {
+      margin-bottom: 2rem;
+    }
+    
+    .app-header h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .app-header p {
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+    }
+    
+    /* ============================================
+       NAVIGATION
+       ============================================ */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--color-border-tertiary);
+      margin-bottom: 2rem;
+    }
+    
+    .nav-tab {
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: var(--border-radius-md);
+      transition: all 0.2s ease;
+    }
+    
+    .nav-tab:hover {
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+    }
+    
+    .nav-tab.active {
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      font-weight: 500;
+    }
+    
+    /* ============================================
+       CARDS & CONTAINERS
+       ============================================ */
+    .card {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 1.5rem;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    .metric-card {
+      background: var(--color-background-secondary);
+      border-radius: var(--border-radius-md);
+      padding: 1rem 1.25rem;
+    }
+    
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 4px;
+    }
+    
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    /* ============================================
+       FORM ELEMENTS
+       ============================================ */
+    input, select, textarea {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 10px 14px;
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      width: 100%;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-border-secondary);
+      box-shadow: 0 0 0 3px var(--color-background-info);
+    }
+    
+    input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    /* ============================================
+       BUTTONS
+       ============================================ */
+    button, .btn {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 10px 18px;
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: transparent;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    button:hover, .btn:hover {
+      background: var(--color-background-secondary);
+    }
+    
+    button:active, .btn:active {
+      transform: scale(0.98);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      border-color: transparent;
+    }
+    
+    .btn-primary:hover {
+      filter: brightness(0.95);
+    }
+    
+    .btn-danger {
+      color: var(--color-text-danger);
+    }
+    
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+    
+    /* ============================================
+       TABLES
+       ============================================ */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+    }
+    
+    th {
+      background: var(--color-background-secondary);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    tr:not(:last-child) td {
+      border-bottom: 1px solid var(--color-border-tertiary);
+    }
+    
+    /* ============================================
+       BADGES & TAGS
+       ============================================ */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: var(--border-radius-sm);
+    }
+    
+    .badge-info {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+    }
+    
+    .badge-success {
+      background: var(--color-background-success);
+      color: var(--color-text-success);
+    }
+    
+    .badge-warning {
+      background: var(--color-background-warning);
+      color: var(--color-text-warning);
+    }
+    
+    .badge-danger {
+      background: var(--color-background-danger);
+      color: var(--color-text-danger);
+    }
+    
+    /* ============================================
+       GRID LAYOUTS
+       ============================================ */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    /* ============================================
+       UPLOAD AREA
+       ============================================ */
+    .upload-area {
+      border: 2px dashed var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 3rem 2rem;
+      text-align: center;
+      background: var(--color-background-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .upload-area:hover {
+      border-color: var(--color-border-secondary);
+      background: var(--color-background-tertiary);
+    }
+    
+    .upload-area input[type="file"] {
+      display: none;
+    }
+    
+    /* ============================================
+       DATASET LIST
+       ============================================ */
+    .dataset-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 0.75rem;
+    }
+    
+    .dataset-item:hover {
+      border-color: var(--color-border-secondary);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .dataset-info h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .dataset-meta {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+    
+    /* ============================================
+       TOAST NOTIFICATIONS
+       ============================================ */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 24px;
+      border-radius: var(--border-radius-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .toast-info {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+    }
+    
+    .toast-success {
+      background: var(--color-background-success);
+      color: var(--color-text-success);
+    }
+    
+    .toast-error {
+      background: var(--color-background-danger);
+      color: var(--color-text-danger);
+    }
+    
+    /* ============================================
+       CHART CONTAINER
+       ============================================ */
+    .chart-container {
+      position: relative;
+      height: 220px;
+      margin-top: 1rem;
+    }
+    
+    /* ============================================
+       UTILITIES
+       ============================================ */
+    .text-muted { color: var(--color-text-secondary); }
+    .text-success { color: var(--color-text-success); }
+    .text-warning { color: var(--color-text-warning); }
+    .text-danger { color: var(--color-text-danger); }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-sm { font-size: 0.85rem; }
+    .text-xs { font-size: 0.75rem; }
+    .font-medium { font-weight: 500; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 1rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>📚 Dataset Metadata Augmenter</h1>
+      <p>AI-powered metadata enrichment for research datasets from government and open data platforms</p>
+    </header>
+    
+    <div id="app">
+      <!-- App renders here -->
+    </div>
+  </div>
+  
+  <!-- Chart.js for statistics visualization -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  
+  <!-- PapaParse for robust CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  
+  <!-- SheetJS for Excel file support -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <script>
+/**
+ * ============================================
+ * DATASET METADATA AUGMENTER
+ * ============================================
+ * A client-side application for cataloging and enriching
+ * research datasets with AI-powered metadata extraction.
+ * 
+ * Author: Aakash
+ * License: MIT
+ * Repository: https://github.com/[username]/Dataset-Metadata-Augmenter
+ */
+
+const App = (() => {
+  // ============================================
+  // STATE MANAGEMENT
+  // ============================================
+  
+  /**
+   * Application state - single source of truth
+   * Persisted to localStorage for session continuity
+   */
+  let state = {
+    view: 'datasets',           // Current view: 'datasets' | 'schema' | 'settings'
+    
+    // LLM Configuration
+    settings: {
+      provider: 'anthropic',
+      apiKey: '',
+      model: 'claude-sonnet-4-20250514',
+      providers: {
+        anthropic: { 
+          name: 'Anthropic',
+          models: ['claude-sonnet-4-20250514', 'claude-opus-4-20250514', 'claude-haiku-4-20250514'],
+          endpoint: 'https://api.anthropic.com/v1/messages'
+        },
+        openai: { 
+          name: 'OpenAI',
+          models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'],
+          endpoint: 'https://api.openai.com/v1/chat/completions'
+        },
+        google: { 
+          name: 'Google Gemini',
+          models: ['gemini-1.5-pro', 'gemini-1.5-flash'],
+          endpoint: 'https://generativelanguage.googleapis.com/v1beta/models'
+        },
+        mistral: { 
+          name: 'Mistral AI',
+          models: ['mistral-large-latest', 'mistral-medium', 'mistral-small-latest'],
+          endpoint: 'https://api.mistral.ai/v1/chat/completions'
+        }
+      }
+    },
+    
+    // Metadata Schema Definition
+    schema: [
+      { id: '1', name: 'Dataset Name', type: 'text', required: true, aiInfer: true },
+      { id: '2', name: 'Source Agency', type: 'text', required: true, aiInfer: true },
+      { id: '3', name: 'Source URL', type: 'url', required: true, aiInfer: false },
+      { id: '4', name: 'Geographic Coverage', type: 'enum', options: ['National', 'State', 'District', 'Block', 'Village'], required: true, aiInfer: true },
+      { id: '5', name: 'Temporal Coverage', type: 'text', required: false, aiInfer: true },
+      { id: '6', name: 'Update Frequency', type: 'enum', options: ['Annual', 'Quarterly', 'Monthly', 'One-time', 'Irregular'], required: false, aiInfer: true },
+      { id: '7', name: 'Methodology Notes', type: 'longtext', required: false, aiInfer: true },
+      { id: '8', name: 'Variable Definitions', type: 'longtext', required: false, aiInfer: true },
+      { id: '9', name: 'Data Quality Notes', type: 'longtext', required: false, aiInfer: true },
+      { id: '10', name: 'License/Terms', type: 'text', required: false, aiInfer: true },
+      { id: '11', name: 'Access Date', type: 'date', required: false, aiInfer: false },
+      { id: '12', name: 'Tags', type: 'tags', required: false, aiInfer: true }
+    ],
+    
+    // Dataset Storage
+    datasets: [],
+    currentDataset: null,
+    uploadPreview: null,
+    
+    // Augmentation State
+    augmenting: false,
+    augmentLog: [],
+    
+    // UI State
+    toast: null
+  };
+
+  // ============================================
+  // PERSISTENCE
+  // ============================================
+  
+  const STORAGE_KEY = 'dataset-metadata-augmenter';
+  
+  /**
+   * Save state to localStorage
+   */
+  const saveState = () => {
+    try {
+      const toSave = {
+        settings: { ...state.settings, apiKey: '' }, // Never persist API key
+        schema: state.schema,
+        datasets: state.datasets
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch (e) {
+      console.warn('Failed to save state:', e);
+    }
+  };
+  
+  /**
+   * Load state from localStorage
+   */
+  const loadState = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.settings) {
+          state.settings = { ...state.settings, ...parsed.settings };
+        }
+        if (parsed.schema) {
+          state.schema = parsed.schema;
+        }
+        if (parsed.datasets) {
+          state.datasets = parsed.datasets;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load state:', e);
+    }
+  };
+
+  // ============================================
+  // UTILITIES
+  // ============================================
+  
+  /**
+   * Generate a unique ID
+   */
+  const generateId = () => Math.random().toString(36).substr(2, 9);
+  
+  /**
+   * Show a toast notification
+   */
+  const showToast = (msg, type = 'info') => {
+    state.toast = { msg, type };
+    render();
+    setTimeout(() => { 
+      state.toast = null; 
+      render(); 
+    }, 3000);
+  };
+  
+  /**
+   * Format a number with locale-aware separators
+   */
+  const formatNumber = (num) => {
+    return num.toLocaleString();
+  };
+
+  // ============================================
+  // DATA PARSING
+  // ============================================
+  
+  /**
+   * Parse CSV text into headers and rows
+   * Uses PapaParse for robust parsing
+   */
+  const parseCSV = (text) => {
+    const result = Papa.parse(text, {
+      header: false,
+      skipEmptyLines: true,
+      dynamicTyping: false
+    });
+    
+    if (result.data.length === 0) {
+      return { headers: [], rows: [] };
+    }
+    
+    return {
+      headers: result.data[0].map(h => String(h).trim()),
+      rows: result.data.slice(1)
+    };
+  };
+  
+  /**
+   * Parse Excel file using SheetJS
+   */
+  const parseExcel = (arrayBuffer) => {
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+    
+    if (data.length === 0) {
+      return { headers: [], rows: [] };
+    }
+    
+    return {
+      headers: data[0].map(h => String(h).trim()),
+      rows: data.slice(1).map(row => row.map(cell => String(cell)))
+    };
+  };
+  
+  /**
+   * Parse JSON array into tabular format
+   */
+  const parseJSON = (text) => {
+    const json = JSON.parse(text);
+    
+    if (!Array.isArray(json) || json.length === 0) {
+      throw new Error('JSON must be an array of objects');
+    }
+    
+    const headers = Object.keys(json[0]);
+    const rows = json.map(obj => headers.map(h => String(obj[h] ?? '')));
+    
+    return { headers, rows };
+  };
+
+  // ============================================
+  // STATISTICS COMPUTATION
+  // ============================================
+  
+  /**
+   * Compute statistics for a dataset
+   */
+  const computeStats = (data) => {
+    if (!data || !data.rows || data.rows.length === 0) {
+      return null;
+    }
+    
+    const stats = {
+      rowCount: data.rows.length,
+      colCount: data.headers.length,
+      columns: []
+    };
+    
+    data.headers.forEach((header, colIndex) => {
+      const values = data.rows.map(row => row[colIndex] || '');
+      const nonEmpty = values.filter(v => v && String(v).trim());
+      const unique = [...new Set(nonEmpty)];
+      const numeric = nonEmpty.filter(v => !isNaN(parseFloat(v)));
+      
+      // Detect date patterns
+      const datePattern = /^\d{4}[-/]\d{2}[-/]\d{2}|^\d{2}[-/]\d{2}[-/]\d{4}/;
+      const dates = nonEmpty.filter(v => datePattern.test(String(v)));
+      
+      stats.columns.push({
+        name: header,
+        fillRate: Math.round((nonEmpty.length / values.length) * 100),
+        uniqueCount: unique.length,
+        isNumeric: numeric.length > nonEmpty.length * 0.8,
+        isDate: dates.length > nonEmpty.length * 0.8,
+        sample: unique.slice(0, 5),
+        min: numeric.length > 0 ? Math.min(...numeric.map(parseFloat)) : null,
+        max: numeric.length > 0 ? Math.max(...numeric.map(parseFloat)) : null
+      });
+    });
+    
+    return stats;
+  };
+
+  // ============================================
+  // LLM INTEGRATION
+  // ============================================
+  
+  /**
+   * Call the configured LLM API
+   */
+  const callLLM = async (prompt) => {
+    const { provider, apiKey, model } = state.settings;
+    const providerConfig = state.settings.providers[provider];
+    
+    let endpoint, headers, body;
+    
+    switch (provider) {
+      case 'anthropic':
+        endpoint = providerConfig.endpoint;
+        headers = {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        };
+        body = {
+          model: model,
+          max_tokens: 4000,
+          messages: [{ role: 'user', content: prompt }]
+        };
+        break;
+        
+      case 'openai':
+        endpoint = providerConfig.endpoint;
+        headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        };
+        body = {
+          model: model,
+          messages: [{ role: 'user', content: prompt }]
+        };
+        break;
+        
+      case 'google':
+        endpoint = `${providerConfig.endpoint}/${model}:generateContent?key=${apiKey}`;
+        headers = { 'Content-Type': 'application/json' };
+        body = {
+          contents: [{ parts: [{ text: prompt }] }]
+        };
+        break;
+        
+      case 'mistral':
+        endpoint = providerConfig.endpoint;
+        headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        };
+        body = {
+          model: model,
+          messages: [{ role: 'user', content: prompt }]
+        };
+        break;
+        
+      default:
+        throw new Error(`Unknown provider: ${provider}`);
+    }
+    
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || `API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Extract response text based on provider
+    switch (provider) {
+      case 'anthropic':
+        return data.content?.[0]?.text || '';
+      case 'openai':
+      case 'mistral':
+        return data.choices?.[0]?.message?.content || '';
+      case 'google':
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      default:
+        return '';
+    }
+  };
+  
+  /**
+   * Augment dataset metadata using LLM
+   */
+  const augmentWithLLM = async (dataset) => {
+    if (!state.settings.apiKey) {
+      showToast('Please configure your API key in Settings', 'error');
+      return;
+    }
+    
+    state.augmenting = true;
+    state.augmentLog = ['🚀 Starting augmentation...'];
+    render();
+    
+    try {
+      const fieldsToInfer = state.schema.filter(f => f.aiInfer);
+      const sampleRows = dataset.data ? dataset.data.rows.slice(0, 10) : [];
+      const sourceUrl = dataset.metadata?.['Source URL'] || '';
+      
+      state.augmentLog.push('📊 Analyzing dataset structure...');
+      render();
+      
+      // Build the prompt
+      const prompt = `You are a research data cataloger specializing in government and secondary datasets, particularly from India.
+
+## Dataset Information
+
+**File name:** ${dataset.name}
+
+**Columns (${dataset.data?.headers?.length || 0}):**
+${dataset.data?.headers?.join(', ') || 'Unknown'}
+
+**Sample data (first ${sampleRows.length} rows):**
+${sampleRows.map((r, i) => `Row ${i + 1}: ${r.slice(0, 10).join(' | ')}${r.length > 10 ? ' ...' : ''}`).join('\n')}
+
+${sourceUrl ? `**Source URL:** ${sourceUrl}` : ''}
+
+## Task
+
+Based on this information, infer the following metadata fields. Use your knowledge of:
+- Indian government data sources (data.gov.in, MoSPI, RBI, Census, etc.)
+- Common survey and administrative data structures
+- Standard data documentation practices
+
+Return ONLY a valid JSON object with these exact keys:
+${fieldsToInfer.map(f => {
+  if (f.type === 'tags') return `"${f.name}": ["tag1", "tag2", "tag3"]`;
+  if (f.type === 'enum') return `"${f.name}": "one of: ${(f.options || []).join(', ')}"`;
+  return `"${f.name}": "inferred value or null if unknown"`;
+}).join(',\n')}
+
+Guidelines:
+- Be specific about Indian ministries, departments, and schemes where applicable
+- For temporal coverage, use format like "2013-2025" or "FY 2022-23"
+- For methodology, describe data collection approach if inferrable
+- If you cannot confidently infer a field, set it to null
+- Return ONLY valid JSON, no markdown formatting, no explanation`;
+
+      state.augmentLog.push(`🤖 Calling ${state.settings.providers[state.settings.provider].name} API...`);
+      render();
+      
+      const responseText = await callLLM(prompt);
+      
+      state.augmentLog.push('🔍 Parsing response...');
+      render();
+      
+      // Extract JSON from response
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('Could not parse LLM response as JSON');
+      }
+      
+      const parsed = JSON.parse(jsonMatch[0]);
+      
+      // Merge inferred metadata
+      dataset.metadata = dataset.metadata || {};
+      Object.entries(parsed).forEach(([key, value]) => {
+        if (value !== null && value !== 'null' && value !== '') {
+          dataset.metadata[key] = value;
+        }
+      });
+      
+      dataset.augmented = true;
+      dataset.augmentedAt = new Date().toISOString();
+      
+      state.augmentLog.push('✅ Metadata augmented successfully!');
+      showToast('Metadata augmented successfully!', 'success');
+      saveState();
+      
+    } catch (error) {
+      state.augmentLog.push(`❌ Error: ${error.message}`);
+      showToast(`Augmentation failed: ${error.message}`, 'error');
+    }
+    
+    state.augmenting = false;
+    render();
+  };
+
+  // ============================================
+  // SCHEMA PRESETS
+  // ============================================
+  
+  const schemaPresets = {
+    government: [
+      { id: '1', name: 'Dataset Name', type: 'text', required: true, aiInfer: true },
+      { id: '2', name: 'Source Ministry/Department', type: 'text', required: true, aiInfer: true },
+      { id: '3', name: 'Source URL', type: 'url', required: true, aiInfer: false },
+      { id: '4', name: 'Portal', type: 'enum', options: ['data.gov.in', 'NITI Aayog', 'RBI', 'MoSPI', 'Census India', 'NHP', 'Other'], required: false, aiInfer: true },
+      { id: '5', name: 'Geographic Level', type: 'enum', options: ['National', 'State', 'District', 'Sub-district', 'Block', 'Village', 'Ward'], required: true, aiInfer: true },
+      { id: '6', name: 'States Covered', type: 'text', required: false, aiInfer: true },
+      { id: '7', name: 'Temporal Coverage', type: 'text', required: false, aiInfer: true },
+      { id: '8', name: 'Update Frequency', type: 'enum', options: ['Real-time', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annual', 'Decennial', 'One-time'], required: false, aiInfer: true },
+      { id: '9', name: 'Collection Method', type: 'longtext', required: false, aiInfer: true },
+      { id: '10', name: 'Related Schemes/Programs', type: 'tags', required: false, aiInfer: true },
+      { id: '11', name: 'Variable Definitions', type: 'longtext', required: false, aiInfer: true },
+      { id: '12', name: 'Known Limitations', type: 'longtext', required: false, aiInfer: true },
+      { id: '13', name: 'Data Format', type: 'enum', options: ['CSV', 'Excel', 'JSON', 'XML', 'API', 'PDF'], required: false, aiInfer: true },
+      { id: '14', name: 'License', type: 'text', required: false, aiInfer: true },
+      { id: '15', name: 'Access Date', type: 'date', required: false, aiInfer: false },
+      { id: '16', name: 'Tags', type: 'tags', required: false, aiInfer: true }
+    ],
+    
+    survey: [
+      { id: '1', name: 'Survey Name', type: 'text', required: true, aiInfer: true },
+      { id: '2', name: 'Conducting Agency', type: 'text', required: true, aiInfer: true },
+      { id: '3', name: 'Survey Round/Wave', type: 'text', required: false, aiInfer: true },
+      { id: '4', name: 'Source URL', type: 'url', required: true, aiInfer: false },
+      { id: '5', name: 'Sample Size', type: 'number', required: false, aiInfer: true },
+      { id: '6', name: 'Sampling Method', type: 'longtext', required: false, aiInfer: true },
+      { id: '7', name: 'Geographic Coverage', type: 'enum', options: ['National', 'State', 'District', 'Urban only', 'Rural only', 'Both'], required: true, aiInfer: true },
+      { id: '8', name: 'Reference Period', type: 'text', required: false, aiInfer: true },
+      { id: '9', name: 'Unit of Observation', type: 'enum', options: ['Individual', 'Household', 'Enterprise', 'Village', 'Other'], required: false, aiInfer: true },
+      { id: '10', name: 'Key Variables', type: 'tags', required: false, aiInfer: true },
+      { id: '11', name: 'Questionnaire Link', type: 'url', required: false, aiInfer: false },
+      { id: '12', name: 'Technical Report Link', type: 'url', required: false, aiInfer: false },
+      { id: '13', name: 'Methodology Notes', type: 'longtext', required: false, aiInfer: true },
+      { id: '14', name: 'Comparability Notes', type: 'longtext', required: false, aiInfer: true },
+      { id: '15', name: 'Citation', type: 'longtext', required: false, aiInfer: true }
+    ],
+    
+    timeseries: [
+      { id: '1', name: 'Dataset Name', type: 'text', required: true, aiInfer: true },
+      { id: '2', name: 'Source', type: 'text', required: true, aiInfer: true },
+      { id: '3', name: 'Source URL', type: 'url', required: true, aiInfer: false },
+      { id: '4', name: 'Frequency', type: 'enum', options: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annual'], required: true, aiInfer: true },
+      { id: '5', name: 'Start Date', type: 'text', required: false, aiInfer: true },
+      { id: '6', name: 'End Date', type: 'text', required: false, aiInfer: true },
+      { id: '7', name: 'Geographic Coverage', type: 'text', required: false, aiInfer: true },
+      { id: '8', name: 'Variables', type: 'tags', required: false, aiInfer: true },
+      { id: '9', name: 'Units', type: 'text', required: false, aiInfer: true },
+      { id: '10', name: 'Seasonal Adjustment', type: 'enum', options: ['Yes', 'No', 'Both available'], required: false, aiInfer: true },
+      { id: '11', name: 'Revision Policy', type: 'longtext', required: false, aiInfer: true },
+      { id: '12', name: 'API Available', type: 'boolean', required: false, aiInfer: true },
+      { id: '13', name: 'Notes', type: 'longtext', required: false, aiInfer: true }
+    ]
+  };
+
+  // ============================================
+  // RENDER FUNCTIONS
+  // ============================================
+  
+  /**
+   * Render navigation tabs
+   */
+  const renderNav = () => `
+    <nav class="nav-tabs">
+      <button class="nav-tab ${state.view === 'datasets' ? 'active' : ''}" 
+              onclick="App.navigate('datasets')">
+        📊 Datasets
+      </button>
+      <button class="nav-tab ${state.view === 'schema' ? 'active' : ''}" 
+              onclick="App.navigate('schema')">
+        🔧 Schema
+      </button>
+      <button class="nav-tab ${state.view === 'settings' ? 'active' : ''}" 
+              onclick="App.navigate('settings')">
+        ⚙️ Settings
+      </button>
+    </nav>
+  `;
+  
+  /**
+   * Render settings view
+   */
+  const renderSettings = () => `
+    <div style="max-width: 600px;">
+      <h2 class="card-title mb-3">LLM Configuration</h2>
+      
+      <div class="card mb-3">
+        <div class="form-group">
+          <label>Provider</label>
+          <select id="provider" onchange="App.updateSetting('provider', this.value)">
+            ${Object.entries(state.settings.providers).map(([key, config]) => `
+              <option value="${key}" ${state.settings.provider === key ? 'selected' : ''}>
+                ${config.name}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Model</label>
+          <select id="model" onchange="App.updateSetting('model', this.value)">
+            ${state.settings.providers[state.settings.provider].models.map(m => `
+              <option value="${m}" ${state.settings.model === m ? 'selected' : ''}>
+                ${m}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" 
+                 id="apiKey" 
+                 value="${state.settings.apiKey}" 
+                 onchange="App.updateSetting('apiKey', this.value)" 
+                 placeholder="Enter your API key">
+        </div>
+        
+        <button onclick="App.testConnection()">Test Connection</button>
+      </div>
+      
+      <div style="padding: 1rem; background: var(--color-background-info); border-radius: var(--border-radius-md);">
+        <p class="text-sm" style="color: var(--color-text-info); margin: 0;">
+          🔒 Your API key is stored only in your browser's memory for this session. 
+          It is never saved to disk or sent anywhere except directly to your chosen LLM provider.
+        </p>
+      </div>
+    </div>
+  `;
+  
+  /**
+   * Render schema builder view
+   */
+  const renderSchema = () => `
+    <div style="max-width: 900px;">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="card-title">Metadata Schema</h2>
+        <button onclick="App.addField()">+ Add Field</button>
+      </div>
+      
+      <div class="table-container mb-3">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 30%;">Field Name</th>
+              <th style="width: 15%;">Type</th>
+              <th style="width: 10%; text-align: center;">Required</th>
+              <th style="width: 10%; text-align: center;">AI Infer</th>
+              <th style="width: 20%;">Options</th>
+              <th style="width: 15%; text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.schema.map((field, index) => `
+              <tr>
+                <td>
+                  <input type="text" 
+                         value="${field.name}" 
+                         onchange="App.updateField('${field.id}', 'name', this.value)"
+                         style="border: none; background: transparent; padding: 0;">
+                </td>
+                <td>
+                  <select onchange="App.updateField('${field.id}', 'type', this.value)"
+                          style="border: none; background: transparent; padding: 0;">
+                    ${['text', 'longtext', 'url', 'date', 'enum', 'tags', 'number', 'boolean'].map(t => `
+                      <option value="${t}" ${field.type === t ? 'selected' : ''}>${t}</option>
+                    `).join('')}
+                  </select>
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" 
+                         ${field.required ? 'checked' : ''} 
+                         onchange="App.updateField('${field.id}', 'required', this.checked)">
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" 
+                         ${field.aiInfer ? 'checked' : ''} 
+                         onchange="App.updateField('${field.id}', 'aiInfer', this.checked)">
+                </td>
+                <td>
+                  ${field.type === 'enum' ? `
+                    <input type="text" 
+                           value="${(field.options || []).join(', ')}" 
+                           onchange="App.updateField('${field.id}', 'options', this.value.split(',').map(s=>s.trim()))"
+                           placeholder="Option1, Option2..."
+                           style="font-size: 0.8rem;">
+                  ` : '<span class="text-muted">—</span>'}
+                </td>
+                <td class="text-right">
+                  <button class="btn-sm" onclick="App.moveField('${field.id}', -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+                  <button class="btn-sm" onclick="App.moveField('${field.id}', 1)" ${index === state.schema.length - 1 ? 'disabled' : ''}>↓</button>
+                  <button class="btn-sm btn-danger" onclick="App.deleteField('${field.id}')">×</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="flex gap-2" style="flex-wrap: wrap;">
+        <button onclick="App.loadPreset('government')">📋 Government Dataset</button>
+        <button onclick="App.loadPreset('survey')">📝 Survey Data</button>
+        <button onclick="App.loadPreset('timeseries')">📈 Time Series</button>
+        <button onclick="App.exportSchema()">💾 Export Schema</button>
+        <label style="cursor: pointer;">
+          <input type="file" accept=".json" onchange="App.importSchema(event)" style="display: none;">
+          <span class="btn">📂 Import Schema</span>
+        </label>
+      </div>
+    </div>
+  `;
+  
+  /**
+   * Render datasets list view
+   */
+  const renderDatasets = () => {
+    if (state.currentDataset) {
+      return renderDatasetDetail();
+    }
+    
+    return `
+      <div>
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="card-title">Datasets (${state.datasets.length})</h2>
+          <label style="cursor: pointer;">
+            <input type="file" 
+                   accept=".csv,.xlsx,.xls,.json,.txt,.tsv" 
+                   multiple 
+                   onchange="App.handleUpload(event)" 
+                   style="display: none;">
+            <span class="btn btn-primary">+ Upload Dataset</span>
+          </label>
+        </div>
+        
+        ${state.uploadPreview ? renderUploadPreview() : ''}
+        
+        ${state.datasets.length === 0 ? `
+          <div class="upload-area" onclick="document.querySelector('input[type=file]').click()">
+            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No datasets yet</p>
+            <p class="text-muted">Drag and drop or click to upload CSV, Excel, JSON, or text files</p>
+          </div>
+        ` : `
+          <div>
+            ${state.datasets.map(d => `
+              <div class="dataset-item" onclick="App.openDataset('${d.id}')">
+                <div class="dataset-info">
+                  <h3>${d.name}</h3>
+                  <p class="dataset-meta">
+                    ${formatNumber(d.data?.rows?.length || 0)} rows · 
+                    ${d.data?.headers?.length || 0} columns
+                    ${d.augmented ? ' · <span class="text-success">✓ Augmented</span>' : ''}
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <button class="btn-sm" onclick="event.stopPropagation(); App.duplicateDataset('${d.id}')">
+                    Copy
+                  </button>
+                  <button class="btn-sm btn-danger" onclick="event.stopPropagation(); App.deleteDataset('${d.id}')">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+    `;
+  };
+  
+  /**
+   * Render upload preview
+   */
+  const renderUploadPreview = () => {
+    const preview = state.uploadPreview;
+    const stats = computeStats(preview.data);
+    
+    return `
+      <div class="card mb-3">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-medium">Preview: ${preview.name}</h3>
+          <div class="flex gap-2">
+            <button onclick="App.cancelUpload()">Cancel</button>
+            <button class="btn-primary" onclick="App.confirmUpload()">Import Dataset</button>
+          </div>
+        </div>
+        
+        ${stats ? `
+          <div class="grid-4 mb-2">
+            <div class="metric-card">
+              <p class="metric-label">Rows</p>
+              <p class="metric-value">${formatNumber(stats.rowCount)}</p>
+            </div>
+            <div class="metric-card">
+              <p class="metric-label">Columns</p>
+              <p class="metric-value">${stats.colCount}</p>
+            </div>
+            <div class="metric-card">
+              <p class="metric-label">Avg Fill Rate</p>
+              <p class="metric-value">${Math.round(stats.columns.reduce((a, c) => a + c.fillRate, 0) / stats.columns.length)}%</p>
+            </div>
+            <div class="metric-card">
+              <p class="metric-label">Numeric Columns</p>
+              <p class="metric-value">${stats.columns.filter(c => c.isNumeric).length}</p>
+            </div>
+          </div>
+        ` : ''}
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                ${preview.data.headers.slice(0, 8).map(h => `<th>${h}</th>`).join('')}
+                ${preview.data.headers.length > 8 ? `<th class="text-muted">+${preview.data.headers.length - 8} more</th>` : ''}
+              </tr>
+            </thead>
+            <tbody>
+              ${preview.data.rows.slice(0, 5).map(row => `
+                <tr>
+                  ${row.slice(0, 8).map(cell => `
+                    <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${cell || '<span class="text-muted">—</span>'}
+                    </td>
+                  `).join('')}
+                  ${preview.data.headers.length > 8 ? '<td></td>' : ''}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  };
+  
+  /**
+   * Render dataset detail view
+   */
+  const renderDatasetDetail = () => {
+    const dataset = state.currentDataset;
+    const stats = computeStats(dataset.data);
+    
+    return `
+      <div>
+        <button onclick="App.closeDataset()" class="mb-2">← Back to Datasets</button>
+        
+        <div class="flex justify-between items-center mb-3" style="flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 4px;">${dataset.name}</h2>
+            <p class="text-muted">
+              ${formatNumber(dataset.data?.rows?.length || 0)} rows · 
+              ${dataset.data?.headers?.length || 0} columns
+              ${dataset.augmented ? ' · <span class="text-success">✓ Augmented</span>' : ''}
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="App.augment('${dataset.id}')" ${state.augmenting ? 'disabled' : ''}>
+              ${state.augmenting ? '⏳ Augmenting...' : '🤖 Augment with AI'}
+            </button>
+            <button onclick="App.exportDataset('${dataset.id}')">📥 Export Metadata</button>
+            <button onclick="App.exportFullDataset('${dataset.id}')">📦 Export Full</button>
+          </div>
+        </div>
+        
+        ${state.augmenting ? `
+          <div class="card mb-3" style="background: var(--color-background-info);">
+            <p class="font-medium mb-1" style="color: var(--color-text-info);">Augmentation in progress...</p>
+            <div class="text-sm" style="color: var(--color-text-info);">
+              ${state.augmentLog.map(log => `<p style="margin: 4px 0;">${log}</p>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        <div class="grid-2">
+          <!-- Metadata Form -->
+          <div>
+            <h3 class="card-title mb-2">Metadata</h3>
+            <div class="card">
+              ${state.schema.map(field => `
+                <div class="form-group">
+                  <label>
+                    ${field.name}
+                    ${field.required ? '<span class="text-danger">*</span>' : ''}
+                    ${field.aiInfer ? '<span class="badge badge-info" style="margin-left: 6px;">AI</span>' : ''}
+                  </label>
+                  ${renderMetadataInput(dataset, field)}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <!-- Statistics -->
+          <div>
+            <h3 class="card-title mb-2">Statistics</h3>
+            ${stats ? `
+              <div class="grid-2 mb-2" style="grid-template-columns: 1fr 1fr;">
+                <div class="metric-card">
+                  <p class="metric-label">Total Rows</p>
+                  <p class="metric-value">${formatNumber(stats.rowCount)}</p>
+                </div>
+                <div class="metric-card">
+                  <p class="metric-label">Total Columns</p>
+                  <p class="metric-value">${stats.colCount}</p>
+                </div>
+              </div>
+              
+              <div class="card mb-2">
+                <h4 class="text-sm font-medium mb-2">Column Statistics</h4>
+                <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Column</th>
+                        <th class="text-right">Fill %</th>
+                        <th class="text-right">Unique</th>
+                        <th class="text-center">Type</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${stats.columns.map(col => `
+                        <tr>
+                          <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;" title="${col.name}">
+                            ${col.name}
+                          </td>
+                          <td class="text-right">
+                            <span class="${col.fillRate >= 90 ? 'text-success' : col.fillRate >= 50 ? 'text-warning' : 'text-danger'}">
+                              ${col.fillRate}%
+                            </span>
+                          </td>
+                          <td class="text-right">${formatNumber(col.uniqueCount)}</td>
+                          <td class="text-center">
+                            <span class="badge ${col.isNumeric ? 'badge-info' : 'badge-secondary'}" 
+                                  style="background: var(--color-background-secondary);">
+                              ${col.isNumeric ? 'num' : col.isDate ? 'date' : 'text'}
+                            </span>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <div class="card">
+                <h4 class="text-sm font-medium mb-2">Fill Rate Distribution</h4>
+                <div class="chart-container">
+                  <canvas id="fillChart"></canvas>
+                </div>
+              </div>
+            ` : '<p class="text-muted">No statistics available</p>'}
+          </div>
+        </div>
+        
+        <!-- Data Preview -->
+        <div class="mt-3">
+          <h3 class="card-title mb-2">Data Preview</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  ${(dataset.data?.headers || []).slice(0, 12).map(h => `<th>${h}</th>`).join('')}
+                  ${(dataset.data?.headers?.length || 0) > 12 ? '<th class="text-muted">...</th>' : ''}
+                </tr>
+              </thead>
+              <tbody>
+                ${(dataset.data?.rows || []).slice(0, 15).map(row => `
+                  <tr>
+                    ${row.slice(0, 12).map(cell => `
+                      <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${cell || '<span class="text-muted">—</span>'}
+                      </td>
+                    `).join('')}
+                    ${(dataset.data?.headers?.length || 0) > 12 ? '<td></td>' : ''}
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+  
+  /**
+   * Render metadata input field based on type
+   */
+  const renderMetadataInput = (dataset, field) => {
+    const value = dataset.metadata?.[field.name] || '';
+    const id = `meta-${field.id}`;
+    
+    switch (field.type) {
+      case 'longtext':
+        return `<textarea id="${id}" 
+                          rows="3" 
+                          onchange="App.updateMetadata('${dataset.id}', '${field.name}', this.value)"
+                >${value}</textarea>`;
+      
+      case 'enum':
+        return `<select id="${id}" onchange="App.updateMetadata('${dataset.id}', '${field.name}', this.value)">
+                  <option value="">Select...</option>
+                  ${(field.options || []).map(opt => `
+                    <option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>
+                  `).join('')}
+                </select>`;
+      
+      case 'tags':
+        const tags = Array.isArray(value) ? value.join(', ') : value;
+        return `<input type="text" 
+                       id="${id}" 
+                       value="${tags}" 
+                       onchange="App.updateMetadata('${dataset.id}', '${field.name}', this.value.split(',').map(s=>s.trim()).filter(Boolean))"
+                       placeholder="tag1, tag2, tag3">`;
+      
+      case 'boolean':
+        return `<select id="${id}" onchange="App.updateMetadata('${dataset.id}', '${field.name}', this.value === 'true')">
+                  <option value="">Select...</option>
+                  <option value="true" ${value === true ? 'selected' : ''}>Yes</option>
+                  <option value="false" ${value === false ? 'selected' : ''}>No</option>
+                </select>`;
+      
+      case 'date':
+        return `<input type="date" 
+                       id="${id}" 
+                       value="${value}" 
+                       onchange="App.updateMetadata('${dataset.id}', '${field.name}', this.value)">`;
+      
+      case 'number':
+        return `<input type="number" 
+                       id="${id}" 
+                       value="${value}" 
+                       onchange="App.updateMetadata('${dataset.id}', '${field.name}', parseFloat(this.value))">`;
+      
+      case 'url':
+        return `<input type="url" 
+                       id="${id}" 
+                       value="${value}" 
+                       onchange="App.updateMetadata('${dataset.id}', '${field.name}', this.value)"
+                       placeholder="https://...">`;
+      
+      default:
+        return `<input type="text" 
+                       id="${id}" 
+                       value="${value}" 
+                       onchange="App.updateMetadata('${dataset.id}', '${field.name}', this.value)">`;
+    }
+  };
+  
+  /**
+   * Render toast notification
+   */
+  const renderToast = () => {
+    if (!state.toast) return '';
+    return `<div class="toast toast-${state.toast.type}">${state.toast.msg}</div>`;
+  };
+  
+  /**
+   * Main render function
+   */
+  const render = () => {
+    const app = document.getElementById('app');
+    
+    app.innerHTML = `
+      ${renderNav()}
+      ${state.view === 'settings' ? renderSettings() : 
+        state.view === 'schema' ? renderSchema() : 
+        renderDatasets()}
+      ${renderToast()}
+    `;
+    
+    // Initialize chart if on dataset detail view
+    if (state.currentDataset && document.getElementById('fillChart')) {
+      renderFillChart();
+    }
+  };
+  
+  /**
+   * Render fill rate chart
+   */
+  const renderFillChart = () => {
+    const stats = computeStats(state.currentDataset.data);
+    if (!stats) return;
+    
+    const ctx = document.getElementById('fillChart');
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: stats.columns.slice(0, 15).map(c => 
+          c.name.length > 10 ? c.name.slice(0, 10) + '...' : c.name
+        ),
+        datasets: [{
+          data: stats.columns.slice(0, 15).map(c => c.fillRate),
+          backgroundColor: stats.columns.slice(0, 15).map(c => 
+            c.fillRate >= 90 ? '#1D9E75' : 
+            c.fillRate >= 50 ? '#EF9F27' : '#E24B4A'
+          ),
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { display: false }
+        },
+        scales: {
+          y: { 
+            beginAtZero: true, 
+            max: 100,
+            ticks: { 
+              callback: v => v + '%',
+              color: isDark ? '#a0a0a0' : '#666666'
+            },
+            grid: {
+              color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: { 
+            ticks: { 
+              maxRotation: 45, 
+              minRotation: 45,
+              color: isDark ? '#a0a0a0' : '#666666'
+            },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  };
+
+  // ============================================
+  // PUBLIC API
+  // ============================================
+  
+  return {
+    /**
+     * Initialize the application
+     */
+    init: () => {
+      loadState();
+      render();
+    },
+    
+    /**
+     * Navigate to a view
+     */
+    navigate: (view) => {
+      state.view = view;
+      state.currentDataset = null;
+      render();
+    },
+    
+    /**
+     * Update a setting
+     */
+    updateSetting: (key, value) => {
+      state.settings[key] = value;
+      if (key === 'provider') {
+        state.settings.model = state.settings.providers[value].models[0];
+      }
+      render();
+    },
+    
+    /**
+     * Test LLM connection
+     */
+    testConnection: async () => {
+      if (!state.settings.apiKey) {
+        showToast('Please enter an API key', 'error');
+        return;
+      }
+      
+      showToast('Testing connection...', 'info');
+      
+      try {
+        const response = await callLLM('Say "Connection successful!" and nothing else.');
+        if (response) {
+          showToast('Connection successful!', 'success');
+        } else {
+          throw new Error('Empty response');
+        }
+      } catch (error) {
+        showToast(`Connection failed: ${error.message}`, 'error');
+      }
+    },
+    
+    // Schema management
+    addField: () => {
+      state.schema.push({
+        id: generateId(),
+        name: 'New Field',
+        type: 'text',
+        required: false,
+        aiInfer: true
+      });
+      saveState();
+      render();
+    },
+    
+    updateField: (id, key, value) => {
+      const field = state.schema.find(f => f.id === id);
+      if (field) {
+        field[key] = value;
+        saveState();
+        render();
+      }
+    },
+    
+    moveField: (id, direction) => {
+      const index = state.schema.findIndex(f => f.id === id);
+      const newIndex = index + direction;
+      if (newIndex >= 0 && newIndex < state.schema.length) {
+        [state.schema[index], state.schema[newIndex]] = [state.schema[newIndex], state.schema[index]];
+        saveState();
+        render();
+      }
+    },
+    
+    deleteField: (id) => {
+      if (confirm('Delete this field?')) {
+        state.schema = state.schema.filter(f => f.id !== id);
+        saveState();
+        render();
+      }
+    },
+    
+    loadPreset: (type) => {
+      if (confirm('This will replace your current schema. Continue?')) {
+        state.schema = JSON.parse(JSON.stringify(schemaPresets[type]));
+        saveState();
+        showToast(`Loaded ${type} preset`, 'success');
+        render();
+      }
+    },
+    
+    exportSchema: () => {
+      const blob = new Blob([JSON.stringify(state.schema, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'metadata-schema.json';
+      a.click();
+    },
+    
+    importSchema: (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            state.schema = imported;
+            saveState();
+            showToast('Schema imported successfully', 'success');
+            render();
+          }
+        } catch (error) {
+          showToast('Failed to import schema: Invalid JSON', 'error');
+        }
+      };
+      reader.readAsText(file);
+    },
+    
+    // File upload handling
+    handleUpload: async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      try {
+        let data;
+        const fileName = file.name.toLowerCase();
+        
+        if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+          const arrayBuffer = await file.arrayBuffer();
+          data = parseExcel(arrayBuffer);
+        } else if (fileName.endsWith('.json')) {
+          const text = await file.text();
+          data = parseJSON(text);
+        } else {
+          // Treat as CSV/TSV/text
+          const text = await file.text();
+          data = parseCSV(text);
+        }
+        
+        state.uploadPreview = { name: file.name, data };
+        render();
+      } catch (error) {
+        showToast(`Failed to parse file: ${error.message}`, 'error');
+      }
+      
+      // Reset file input
+      event.target.value = '';
+    },
+    
+    cancelUpload: () => {
+      state.uploadPreview = null;
+      render();
+    },
+    
+    confirmUpload: () => {
+      const preview = state.uploadPreview;
+      state.datasets.push({
+        id: generateId(),
+        name: preview.name,
+        data: preview.data,
+        metadata: {},
+        augmented: false,
+        createdAt: new Date().toISOString()
+      });
+      state.uploadPreview = null;
+      saveState();
+      showToast('Dataset imported successfully!', 'success');
+      render();
+    },
+    
+    // Dataset management
+    openDataset: (id) => {
+      state.currentDataset = state.datasets.find(d => d.id === id);
+      render();
+    },
+    
+    closeDataset: () => {
+      state.currentDataset = null;
+      render();
+    },
+    
+    deleteDataset: (id) => {
+      if (confirm('Delete this dataset? This cannot be undone.')) {
+        state.datasets = state.datasets.filter(d => d.id !== id);
+        saveState();
+        showToast('Dataset deleted', 'info');
+        render();
+      }
+    },
+    
+    duplicateDataset: (id) => {
+      const original = state.datasets.find(d => d.id === id);
+      if (original) {
+        const copy = JSON.parse(JSON.stringify(original));
+        copy.id = generateId();
+        copy.name = `${original.name} (copy)`;
+        copy.createdAt = new Date().toISOString();
+        state.datasets.push(copy);
+        saveState();
+        showToast('Dataset duplicated', 'success');
+        render();
+      }
+    },
+    
+    updateMetadata: (datasetId, field, value) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      if (dataset) {
+        dataset.metadata = dataset.metadata || {};
+        dataset.metadata[field] = value;
+        if (state.currentDataset?.id === datasetId) {
+          state.currentDataset = dataset;
+        }
+        saveState();
+      }
+    },
+    
+    augment: async (id) => {
+      const dataset = state.datasets.find(d => d.id === id);
+      if (dataset) {
+        await augmentWithLLM(dataset);
+        if (state.currentDataset?.id === id) {
+          state.currentDataset = dataset;
+        }
+      }
+    },
+    
+    exportDataset: (id) => {
+      const dataset = state.datasets.find(d => d.id === id);
+      if (!dataset) return;
+      
+      const exportData = {
+        name: dataset.name,
+        metadata: dataset.metadata,
+        schema: state.schema,
+        stats: computeStats(dataset.data),
+        augmented: dataset.augmented,
+        exportedAt: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${dataset.name.replace(/\.[^.]+$/, '')}-metadata.json`;
+      a.click();
+    },
+    
+    exportFullDataset: (id) => {
+      const dataset = state.datasets.find(d => d.id === id);
+      if (!dataset) return;
+      
+      const exportData = {
+        name: dataset.name,
+        metadata: dataset.metadata,
+        schema: state.schema,
+        data: dataset.data,
+        stats: computeStats(dataset.data),
+        augmented: dataset.augmented,
+        createdAt: dataset.createdAt,
+        exportedAt: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${dataset.name.replace(/\.[^.]+$/, '')}-full.json`;
+      a.click();
+    }
+  };
+})();
+
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', App.init);
+  </script>
+</body>
+</html>
