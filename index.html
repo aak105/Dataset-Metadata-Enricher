@@ -1188,14 +1188,31 @@ Guidelines:
       <div>
         <div class="flex justify-between items-center mb-3">
           <h2 class="card-title">Datasets (${state.datasets.length})</h2>
-          <label style="cursor: pointer;">
-            <input type="file" 
-                   accept=".csv,.xlsx,.xls,.json,.txt,.tsv" 
-                   multiple 
-                   onchange="App.handleUpload(event)" 
-                   style="display: none;">
-            <span class="btn btn-primary">+ Upload Dataset</span>
-          </label>
+          <div class="flex gap-2">
+            ${state.datasets.length > 0 ? `
+              <div style="position: relative; display: inline-block;">
+                <button onclick="this.nextElementSibling.classList.toggle('hidden')">
+                  📥 Export All ▾
+                </button>
+                <div class="hidden" style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); z-index: 100; min-width: 200px;">
+                  <button onclick="App.exportAllMetadataCSV(); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
+                    📄 All Metadata as CSV
+                  </button>
+                  <button onclick="App.exportAllMetadataExcel(); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
+                    📊 All Metadata as Excel
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+            <label style="cursor: pointer;">
+              <input type="file" 
+                     accept=".csv,.xlsx,.xls,.json,.txt,.tsv" 
+                     multiple 
+                     onchange="App.handleUpload(event)" 
+                     style="display: none;">
+              <span class="btn btn-primary">+ Upload Dataset</span>
+            </label>
+          </div>
         </div>
         
         ${state.uploadPreview ? renderUploadPreview() : ''}
@@ -1361,12 +1378,30 @@ Guidelines:
               ${dataset.augmented ? ' · <span class="text-success">✓ Augmented</span>' : ''}
             </p>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2" style="flex-wrap: wrap;">
             <button onclick="App.augment('${dataset.id}')" ${state.augmenting ? 'disabled' : ''}>
               ${state.augmenting ? '⏳ Augmenting...' : '🤖 Augment with AI'}
             </button>
-            <button onclick="App.exportDataset('${dataset.id}')">📥 Export Metadata</button>
-            <button onclick="App.exportFullDataset('${dataset.id}')">📦 Export Full</button>
+            <div style="position: relative; display: inline-block;">
+              <button onclick="this.nextElementSibling.classList.toggle('hidden')">
+                📥 Export ▾
+              </button>
+              <div class="hidden" style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); z-index: 100; min-width: 180px;">
+                <button onclick="App.exportMetadataCSV('${dataset.id}'); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
+                  📄 Metadata as CSV
+                </button>
+                <button onclick="App.exportMetadataExcel('${dataset.id}'); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
+                  📊 Metadata as Excel
+                </button>
+                <button onclick="App.exportDataset('${dataset.id}'); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
+                  📋 Metadata as JSON
+                </button>
+                <div style="border-top: 1px solid var(--color-border-tertiary);"></div>
+                <button onclick="App.exportFullDataset('${dataset.id}'); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
+                  📦 Full Dataset (JSON)
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -1952,6 +1987,150 @@ Guidelines:
       a.href = URL.createObjectURL(blob);
       a.download = `${dataset.name.replace(/\.[^.]+$/, '')}-full.json`;
       a.click();
+    },
+    
+    exportMetadataCSV: (id) => {
+      const dataset = state.datasets.find(d => d.id === id);
+      if (!dataset) return;
+      
+      // Build CSV rows: Field, Value
+      const rows = [['Field', 'Value']];
+      state.schema.forEach(field => {
+        let value = dataset.metadata?.[field.name] || '';
+        // Handle arrays (tags)
+        if (Array.isArray(value)) {
+          value = value.join('; ');
+        }
+        // Escape quotes and wrap in quotes if contains comma
+        value = String(value).replace(/"/g, '""');
+        if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+          value = `"${value}"`;
+        }
+        rows.push([field.name, value]);
+      });
+      
+      // Add dataset info
+      rows.push(['---', '---']);
+      rows.push(['Dataset Name', dataset.name]);
+      rows.push(['Row Count', dataset.data?.rows?.length || 0]);
+      rows.push(['Column Count', dataset.data?.headers?.length || 0]);
+      rows.push(['Augmented', dataset.augmented ? 'Yes' : 'No']);
+      rows.push(['Exported At', new Date().toISOString()]);
+      
+      const csvContent = rows.map(row => row.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${dataset.name.replace(/\.[^.]+$/, '')}-metadata.csv`;
+      a.click();
+      showToast('Exported as CSV', 'success');
+    },
+    
+    exportMetadataExcel: (id) => {
+      const dataset = state.datasets.find(d => d.id === id);
+      if (!dataset) return;
+      
+      // Build data for Excel
+      const wsData = [['Field', 'Value', 'Type', 'Required']];
+      state.schema.forEach(field => {
+        let value = dataset.metadata?.[field.name] || '';
+        if (Array.isArray(value)) {
+          value = value.join('; ');
+        }
+        wsData.push([field.name, value, field.type, field.required ? 'Yes' : 'No']);
+      });
+      
+      // Add blank row and dataset info
+      wsData.push([]);
+      wsData.push(['Dataset Info', '', '', '']);
+      wsData.push(['Dataset Name', dataset.name, '', '']);
+      wsData.push(['Row Count', dataset.data?.rows?.length || 0, '', '']);
+      wsData.push(['Column Count', dataset.data?.headers?.length || 0, '', '']);
+      wsData.push(['Columns', (dataset.data?.headers || []).join(', '), '', '']);
+      wsData.push(['Augmented', dataset.augmented ? 'Yes' : 'No', '', '']);
+      wsData.push(['Exported At', new Date().toISOString(), '', '']);
+      
+      // Create workbook
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Metadata');
+      
+      // Auto-size columns
+      ws['!cols'] = [{ wch: 25 }, { wch: 60 }, { wch: 12 }, { wch: 10 }];
+      
+      // Export
+      XLSX.writeFile(wb, `${dataset.name.replace(/\.[^.]+$/, '')}-metadata.xlsx`);
+      showToast('Exported as Excel', 'success');
+    },
+    
+    exportAllMetadataCSV: () => {
+      if (state.datasets.length === 0) {
+        showToast('No datasets to export', 'error');
+        return;
+      }
+      
+      // Build header row from schema
+      const headers = ['Dataset Name', ...state.schema.map(f => f.name), 'Row Count', 'Columns', 'Augmented'];
+      const rows = [headers];
+      
+      state.datasets.forEach(dataset => {
+        const row = [dataset.name];
+        state.schema.forEach(field => {
+          let value = dataset.metadata?.[field.name] || '';
+          if (Array.isArray(value)) value = value.join('; ');
+          value = String(value).replace(/"/g, '""');
+          if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+            value = `"${value}"`;
+          }
+          row.push(value);
+        });
+        row.push(dataset.data?.rows?.length || 0);
+        row.push(dataset.data?.headers?.length || 0);
+        row.push(dataset.augmented ? 'Yes' : 'No');
+        rows.push(row);
+      });
+      
+      const csvContent = rows.map(row => row.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `all-datasets-metadata-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      showToast(`Exported ${state.datasets.length} datasets as CSV`, 'success');
+    },
+    
+    exportAllMetadataExcel: () => {
+      if (state.datasets.length === 0) {
+        showToast('No datasets to export', 'error');
+        return;
+      }
+      
+      // Build header row from schema
+      const headers = ['Dataset Name', ...state.schema.map(f => f.name), 'Row Count', 'Columns', 'Augmented'];
+      const wsData = [headers];
+      
+      state.datasets.forEach(dataset => {
+        const row = [dataset.name];
+        state.schema.forEach(field => {
+          let value = dataset.metadata?.[field.name] || '';
+          if (Array.isArray(value)) value = value.join('; ');
+          row.push(value);
+        });
+        row.push(dataset.data?.rows?.length || 0);
+        row.push(dataset.data?.headers?.length || 0);
+        row.push(dataset.augmented ? 'Yes' : 'No');
+        wsData.push(row);
+      });
+      
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'All Datasets');
+      
+      // Auto-size first column
+      ws['!cols'] = [{ wch: 30 }, ...state.schema.map(() => ({ wch: 25 })), { wch: 10 }, { wch: 10 }, { wch: 10 }];
+      
+      XLSX.writeFile(wb, `all-datasets-metadata-${new Date().toISOString().slice(0,10)}.xlsx`);
+      showToast(`Exported ${state.datasets.length} datasets as Excel`, 'success');
     }
   };
 })();
