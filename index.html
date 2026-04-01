@@ -1200,12 +1200,32 @@ Guidelines:
         
         ${state.uploadPreview ? renderUploadPreview() : ''}
         
-        ${state.datasets.length === 0 ? `
+        ${state.datasets.length === 0 && !state.uploadPreview ? `
+          <div class="card mb-3" style="background: var(--color-background-info); border: none;">
+            <h3 style="color: var(--color-text-info); margin-bottom: 1rem;">📋 How it works</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; color: var(--color-text-info);">
+              <div>
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">1️⃣</div>
+                <strong>Upload Dataset</strong>
+                <p class="text-sm" style="margin-top: 0.25rem; opacity: 0.9;">CSV, Excel, or JSON file from any data portal</p>
+              </div>
+              <div>
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">2️⃣</div>
+                <strong>Add Source URL</strong>
+                <p class="text-sm" style="margin-top: 0.25rem; opacity: 0.9;">Paste the link where you downloaded it from</p>
+              </div>
+              <div>
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">3️⃣</div>
+                <strong>Generate Metadata</strong>
+                <p class="text-sm" style="margin-top: 0.25rem; opacity: 0.9;">AI analyzes the data and fills in the details</p>
+              </div>
+            </div>
+          </div>
           <div class="upload-area" onclick="document.querySelector('input[type=file]').click()">
-            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No datasets yet</p>
+            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">📂 Upload your first dataset</p>
             <p class="text-muted">Drag and drop or click to upload CSV, Excel, JSON, or text files</p>
           </div>
-        ` : `
+        ` : state.datasets.length === 0 ? '' : `
           <div>
             ${state.datasets.map(d => `
               <div class="dataset-item" onclick="App.openDataset('${d.id}')">
@@ -1244,10 +1264,7 @@ Guidelines:
       <div class="card mb-3">
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-medium">Preview: ${preview.name}</h3>
-          <div class="flex gap-2">
-            <button onclick="App.cancelUpload()">Cancel</button>
-            <button class="btn-primary" onclick="App.confirmUpload()">Import Dataset</button>
-          </div>
+          <button onclick="App.cancelUpload()" class="btn-sm">✕ Cancel</button>
         </div>
         
         ${stats ? `
@@ -1271,7 +1288,7 @@ Guidelines:
           </div>
         ` : ''}
         
-        <div class="table-container">
+        <div class="table-container mb-3">
           <table>
             <thead>
               <tr>
@@ -1292,6 +1309,33 @@ Guidelines:
               `).join('')}
             </tbody>
           </table>
+        </div>
+        
+        <!-- Source URL Input -->
+        <div class="form-group" style="background: var(--color-background-secondary); padding: 1rem; border-radius: var(--border-radius-md); margin-bottom: 1rem;">
+          <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span>🔗 Source URL</span>
+            <span class="badge badge-info">Important for AI</span>
+          </label>
+          <input type="url" 
+                 id="sourceUrlInput" 
+                 value="${preview.sourceUrl || ''}" 
+                 onchange="App.updatePreviewUrl(this.value)"
+                 placeholder="https://data.gov.in/resource/... (paste where you downloaded this dataset)">
+          <p class="text-xs text-muted" style="margin-top: 6px;">
+            The AI uses this URL to understand the source agency, methodology, and context
+          </p>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-2" style="flex-wrap: wrap;">
+          <button onclick="App.confirmUpload()">
+            📥 Import Only
+          </button>
+          <button class="btn-primary" onclick="App.importAndAugment()" ${!state.settings.apiKey ? 'disabled title="Configure API key in Settings first"' : ''}>
+            🤖 Import & Generate Metadata
+          </button>
+          ${!state.settings.apiKey ? '<span class="text-sm text-muted" style="align-self: center;">⚠️ Set up API key in Settings to use AI</span>' : ''}
         </div>
       </div>
     `;
@@ -1763,19 +1807,52 @@ Guidelines:
       render();
     },
     
+    updatePreviewUrl: (url) => {
+      if (state.uploadPreview) {
+        state.uploadPreview.sourceUrl = url;
+      }
+    },
+    
     confirmUpload: () => {
       const preview = state.uploadPreview;
-      state.datasets.push({
+      const newDataset = {
         id: generateId(),
         name: preview.name,
         data: preview.data,
-        metadata: {},
+        metadata: {
+          'Source URL': preview.sourceUrl || ''
+        },
         augmented: false,
         createdAt: new Date().toISOString()
-      });
+      };
+      state.datasets.push(newDataset);
       state.uploadPreview = null;
       saveState();
       showToast('Dataset imported successfully!', 'success');
+      render();
+    },
+    
+    importAndAugment: async () => {
+      const preview = state.uploadPreview;
+      const newDataset = {
+        id: generateId(),
+        name: preview.name,
+        data: preview.data,
+        metadata: {
+          'Source URL': preview.sourceUrl || ''
+        },
+        augmented: false,
+        createdAt: new Date().toISOString()
+      };
+      state.datasets.push(newDataset);
+      state.uploadPreview = null;
+      state.currentDataset = newDataset;
+      saveState();
+      render();
+      
+      // Trigger augmentation
+      await augmentWithLLM(newDataset);
+      state.currentDataset = newDataset;
       render();
     },
     
