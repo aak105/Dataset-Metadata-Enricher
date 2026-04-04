@@ -794,23 +794,87 @@ const App = (() => {
   // ============================================
   
   /**
-   * Fetch webpage content via CORS proxy
+   * List of CORS proxies to try (in order)
+   */
+  const CORS_PROXIES = [
+    {
+      name: 'corsproxy.io',
+      buildUrl: (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      parseResponse: async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.text();
+      }
+    },
+    {
+      name: 'allorigins.win',
+      buildUrl: (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      parseResponse: async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!data.contents) throw new Error('Empty response');
+        return data.contents;
+      }
+    },
+    {
+      name: 'corsproxy.org',
+      buildUrl: (url) => `https://corsproxy.org/?${encodeURIComponent(url)}`,
+      parseResponse: async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.text();
+      }
+    },
+    {
+      name: 'api.codetabs.com',
+      buildUrl: (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      parseResponse: async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.text();
+      }
+    }
+  ];
+  
+  /**
+   * Fetch webpage content via CORS proxy with automatic fallback
    */
   const fetchUrlContent = async (url) => {
-    // Use allorigins.win as CORS proxy
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    let lastError = null;
     
-    const response = await fetch(proxyUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch: ${response.status}`);
+    for (const proxy of CORS_PROXIES) {
+      try {
+        console.log(`Trying proxy: ${proxy.name}...`);
+        const proxyUrl = proxy.buildUrl(url);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        
+        const response = await fetch(proxyUrl, { 
+          signal: controller.signal,
+          headers: {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        const html = await proxy.parseResponse(response);
+        
+        // Validate we got actual HTML content
+        if (!html || html.length < 100 || !html.includes('<')) {
+          throw new Error('Invalid HTML response');
+        }
+        
+        console.log(`Success with proxy: ${proxy.name}`);
+        return html;
+        
+      } catch (error) {
+        console.warn(`Proxy ${proxy.name} failed:`, error.message);
+        lastError = error;
+        // Continue to next proxy
+      }
     }
     
-    const data = await response.json();
-    if (!data.contents) {
-      throw new Error('Empty response from proxy');
-    }
-    
-    return data.contents;
+    // All proxies failed
+    throw new Error(`All proxies failed. Last error: ${lastError?.message || 'Unknown'}`);
   };
   
   /**
@@ -844,13 +908,20 @@ const App = (() => {
     
     // Try to detect from common Indian gov sites
     if (!agency) {
-      if (url.includes('data.gov.in')) agency = 'Open Government Data Platform India';
-      else if (url.includes('mospi.gov.in')) agency = 'Ministry of Statistics and Programme Implementation';
+      if (url.includes('ndap.niti.gov.in')) agency = 'National Data & Analytics Platform (NDAP), NITI Aayog';
+      else if (url.includes('data.gov.in')) agency = 'Open Government Data Platform India';
+      else if (url.includes('mospi.gov.in') || url.includes('mospi.nic.in')) agency = 'Ministry of Statistics and Programme Implementation';
       else if (url.includes('rbi.org.in')) agency = 'Reserve Bank of India';
       else if (url.includes('censusindia.gov.in')) agency = 'Office of the Registrar General & Census Commissioner, India';
       else if (url.includes('niti.gov.in')) agency = 'NITI Aayog';
       else if (url.includes('pib.gov.in')) agency = 'Press Information Bureau';
-      else if (url.includes('.gov.in')) agency = 'Government of India';
+      else if (url.includes('epwrfits.in')) agency = 'EPW Research Foundation';
+      else if (url.includes('indiastat.com')) agency = 'Indiastat';
+      else if (url.includes('agricoop.nic.in')) agency = 'Ministry of Agriculture & Farmers Welfare';
+      else if (url.includes('eands.dacnet.nic.in')) agency = 'Directorate of Economics & Statistics, Ministry of Agriculture';
+      else if (url.includes('nhb.gov.in')) agency = 'National Horticulture Board';
+      else if (url.includes('updes.up.nic.in') || url.includes('upag')) agency = 'Directorate of Economics & Statistics, Uttar Pradesh';
+      else if (url.includes('.gov.in') || url.includes('.nic.in')) agency = 'Government of India';
     }
     agency = agency.trim();
     
@@ -1635,6 +1706,7 @@ Guidelines:
                 const value = dataset.metadata?.[field.name];
                 const isEmpty = !value || (Array.isArray(value) && value.length === 0);
                 const isInferring = state.inferringField === field.id;
+                const canInfer = field.aiInfer === true;
                 return `
                 <div class="form-group" style="position: relative;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -1643,13 +1715,13 @@ Guidelines:
                       ${field.required ? '<span class="text-danger">*</span>' : ''}
                       ${isEmpty ? '<span class="badge badge-warning" style="margin-left: 6px;">Empty</span>' : ''}
                     </label>
-                    ${field.aiInfer ? `
+                    ${canInfer ? `
                       <button class="btn-sm" 
                               onclick="App.inferSingleField('${dataset.id}', '${field.id}')" 
                               ${state.augmenting || isInferring ? 'disabled' : ''}
-                              style="padding: 4px 8px; font-size: 0.75rem;"
+                              style="padding: 4px 10px; font-size: 0.75rem; background: var(--color-background-info); color: var(--color-text-info); border: none;"
                               title="Use AI to infer this field">
-                        ${isInferring ? '⏳' : '🤖'} Infer
+                        ${isInferring ? '⏳ Inferring...' : '🤖 Infer'}
                       </button>
                     ` : ''}
                   </div>
@@ -2091,6 +2163,8 @@ Guidelines:
       state.uploadPreview.fetchedContent = null;
       render();
       
+      showToast('Trying multiple proxies...', 'info');
+      
       try {
         const html = await fetchUrlContent(state.uploadPreview.sourceUrl);
         const metadata = extractMetadataFromHtml(html, state.uploadPreview.sourceUrl);
@@ -2099,6 +2173,7 @@ Guidelines:
       } catch (error) {
         console.error('Fetch error:', error);
         state.uploadPreview.fetchError = error.message || 'Unknown error';
+        showToast('All proxies failed. Try manual paste.', 'warning');
       }
       
       state.fetchingUrl = false;
