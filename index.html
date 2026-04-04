@@ -605,6 +605,7 @@ const App = (() => {
     // Augmentation State
     augmenting: false,
     augmentLog: [],
+    inferringField: null,  // Track which single field is being inferred
     
     // URL Fetching State
     fetchingUrl: false,
@@ -1611,18 +1612,50 @@ Guidelines:
         <div class="grid-2">
           <!-- Metadata Form -->
           <div>
-            <h3 class="card-title mb-2">Metadata</h3>
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="card-title">Metadata</h3>
+              <div class="flex gap-2">
+                ${(() => {
+                  const emptyFields = state.schema.filter(f => {
+                    const val = dataset.metadata?.[f.name];
+                    return !val || (Array.isArray(val) && val.length === 0);
+                  });
+                  const aiFields = emptyFields.filter(f => f.aiInfer);
+                  if (aiFields.length > 0) {
+                    return `<button class="btn-sm" onclick="App.augmentEmptyFields('${dataset.id}')" ${state.augmenting ? 'disabled' : ''}>
+                      🤖 Fill ${aiFields.length} Empty
+                    </button>`;
+                  }
+                  return '<span class="badge badge-success">✓ All fields filled</span>';
+                })()}
+              </div>
+            </div>
             <div class="card">
-              ${state.schema.map(field => `
-                <div class="form-group">
-                  <label>
-                    ${field.name}
-                    ${field.required ? '<span class="text-danger">*</span>' : ''}
-                    ${field.aiInfer ? '<span class="badge badge-info" style="margin-left: 6px;">AI</span>' : ''}
-                  </label>
+              ${state.schema.map(field => {
+                const value = dataset.metadata?.[field.name];
+                const isEmpty = !value || (Array.isArray(value) && value.length === 0);
+                const isInferring = state.inferringField === field.id;
+                return `
+                <div class="form-group" style="position: relative;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="margin-bottom: 0;">
+                      ${field.name}
+                      ${field.required ? '<span class="text-danger">*</span>' : ''}
+                      ${isEmpty ? '<span class="badge badge-warning" style="margin-left: 6px;">Empty</span>' : ''}
+                    </label>
+                    ${field.aiInfer ? `
+                      <button class="btn-sm" 
+                              onclick="App.inferSingleField('${dataset.id}', '${field.id}')" 
+                              ${state.augmenting || isInferring ? 'disabled' : ''}
+                              style="padding: 4px 8px; font-size: 0.75rem;"
+                              title="Use AI to infer this field">
+                        ${isInferring ? '⏳' : '🤖'} Infer
+                      </button>
+                    ` : ''}
+                  </div>
                   ${renderMetadataInput(dataset, field)}
                 </div>
-              `).join('')}
+              `}).join('')}
             </div>
           </div>
           
@@ -2227,6 +2260,217 @@ Guidelines:
           state.currentDataset = dataset;
         }
       }
+    },
+    
+    inferSingleField: async (datasetId, fieldId) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      const field = state.schema.find(f => f.id === fieldId);
+      if (!dataset || !field) return;
+      
+      if (!state.settings.apiKey) {
+        showToast('Please configure your API key in Settings', 'error');
+        return;
+      }
+      
+      state.inferringField = fieldId;
+      render();
+      
+      try {
+        const sampleRows = dataset.data ? dataset.data.rows.slice(0, 10) : [];
+        const sourceUrl = dataset.metadata?.['Source URL'] || '';
+        const fetchedContent = dataset.fetchedContent;
+        
+        const prompt = `You are a research data cataloger specializing in government and secondary datasets, particularly from India.
+
+## Dataset Information
+
+**File name:** ${dataset.name}
+
+**Columns (${dataset.data?.headers?.length || 0}):**
+${dataset.data?.headers?.join(', ') || 'Unknown'}
+
+**Sample data (first ${sampleRows.length} rows):**
+${sampleRows.map((r, i) => `Row ${i + 1}: ${r.slice(0, 10).join(' | ')}${r.length > 10 ? ' ...' : ''}`).join('\n')}
+
+${sourceUrl ? `**Source URL:** ${sourceUrl}` : ''}
+
+${fetchedContent ? `
+## Source Page Information (fetched from URL)
+
+**Page Title:** ${fetchedContent.title || 'Not found'}
+**Description:** ${fetchedContent.description || 'Not found'}
+**Agency/Publisher:** ${fetchedContent.agency || 'Not found'}
+${fetchedContent.keywords?.length ? `**Keywords:** ${fetchedContent.keywords.join(', ')}` : ''}
+
+**Page Content Extract:**
+${fetchedContent.pageText?.slice(0, 1500) || 'Not available'}
+` : ''}
+
+## Task
+
+I need you to infer ONLY this specific field:
+
+**Field Name:** ${field.name}
+**Field Type:** ${field.type}
+${field.type === 'enum' ? `**Allowed Values:** ${(field.options || []).join(', ')}` : ''}
+
+Respond with ONLY the value for this field, nothing else. No JSON, no explanation, just the value.
+${field.type === 'tags' ? 'For tags, return comma-separated values like: tag1, tag2, tag3' : ''}
+${field.type === 'enum' ? `Return exactly one of these values: ${(field.options || []).join(', ')}` : ''}
+If you cannot determine the value confidently, respond with: UNKNOWN`;
+
+        const responseText = await callLLM(prompt);
+        let value = responseText.trim();
+        
+        // Skip if AI couldn't determine
+        if (value === 'UNKNOWN' || value.toLowerCase() === 'null' || value === '') {
+          showToast(`Could not infer "${field.name}"`, 'warning');
+        } else {
+          // Parse based on field type
+          if (field.type === 'tags') {
+            value = value.split(',').map(s => s.trim()).filter(Boolean);
+          } else if (field.type === 'boolean') {
+            value = value.toLowerCase() === 'yes' || value.toLowerCase() === 'true';
+          } else if (field.type === 'number') {
+            value = parseFloat(value) || value;
+          }
+          
+          dataset.metadata = dataset.metadata || {};
+          dataset.metadata[field.name] = value;
+          saveState();
+          showToast(`"${field.name}" inferred successfully!`, 'success');
+        }
+        
+      } catch (error) {
+        showToast(`Failed to infer: ${error.message}`, 'error');
+      }
+      
+      state.inferringField = null;
+      if (state.currentDataset?.id === datasetId) {
+        state.currentDataset = dataset;
+      }
+      render();
+    },
+    
+    augmentEmptyFields: async (datasetId) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      if (!dataset) return;
+      
+      if (!state.settings.apiKey) {
+        showToast('Please configure your API key in Settings', 'error');
+        return;
+      }
+      
+      // Find empty AI-inferable fields
+      const emptyFields = state.schema.filter(f => {
+        if (!f.aiInfer) return false;
+        const val = dataset.metadata?.[f.name];
+        return !val || (Array.isArray(val) && val.length === 0);
+      });
+      
+      if (emptyFields.length === 0) {
+        showToast('All fields are already filled!', 'success');
+        return;
+      }
+      
+      state.augmenting = true;
+      state.augmentLog = [`🚀 Filling ${emptyFields.length} empty fields...`];
+      render();
+      
+      try {
+        const sampleRows = dataset.data ? dataset.data.rows.slice(0, 10) : [];
+        const sourceUrl = dataset.metadata?.['Source URL'] || '';
+        const fetchedContent = dataset.fetchedContent;
+        
+        const prompt = `You are a research data cataloger specializing in government and secondary datasets, particularly from India.
+
+## Dataset Information
+
+**File name:** ${dataset.name}
+
+**Columns (${dataset.data?.headers?.length || 0}):**
+${dataset.data?.headers?.join(', ') || 'Unknown'}
+
+**Sample data (first ${sampleRows.length} rows):**
+${sampleRows.map((r, i) => `Row ${i + 1}: ${r.slice(0, 10).join(' | ')}${r.length > 10 ? ' ...' : ''}`).join('\n')}
+
+${sourceUrl ? `**Source URL:** ${sourceUrl}` : ''}
+
+${fetchedContent ? `
+## Source Page Information (fetched from URL)
+
+**Page Title:** ${fetchedContent.title || 'Not found'}
+**Description:** ${fetchedContent.description || 'Not found'}
+**Agency/Publisher:** ${fetchedContent.agency || 'Not found'}
+${fetchedContent.keywords?.length ? `**Keywords:** ${fetchedContent.keywords.join(', ')}` : ''}
+${fetchedContent.license ? `**License mentioned:** ${fetchedContent.license}` : ''}
+
+**Page Content Extract:**
+${fetchedContent.pageText?.slice(0, 2000) || 'Not available'}
+` : ''}
+
+## Already Filled Metadata
+${Object.entries(dataset.metadata || {}).filter(([k, v]) => v && (!Array.isArray(v) || v.length > 0)).map(([k, v]) => `**${k}:** ${Array.isArray(v) ? v.join(', ') : v}`).join('\n') || 'None'}
+
+## Task
+
+Fill ONLY these empty fields (the ones listed below are missing values):
+
+${emptyFields.map(f => {
+  if (f.type === 'tags') return `"${f.name}": ["tag1", "tag2", "tag3"]`;
+  if (f.type === 'enum') return `"${f.name}": "one of: ${(f.options || []).join(', ')}"`;
+  if (f.type === 'boolean') return `"${f.name}": true or false`;
+  return `"${f.name}": "inferred value"`;
+}).join(',\n')}
+
+IMPORTANT: 
+- You MUST provide a value for EVERY field listed above. Do not leave any field as null.
+- Use your best inference even if not 100% certain.
+- For Indian government data, use common patterns (e.g., "Annual" for update frequency, "data.gov.in" portals, etc.)
+- Return ONLY valid JSON object with these exact keys, no explanation.`;
+
+        state.augmentLog.push(`🤖 Calling ${state.settings.providers[state.settings.provider].name} API...`);
+        render();
+        
+        const responseText = await callLLM(prompt);
+        
+        state.augmentLog.push('🔍 Parsing response...');
+        render();
+        
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error('Could not parse LLM response as JSON');
+        }
+        
+        const parsed = JSON.parse(jsonMatch[0]);
+        
+        // Merge inferred metadata
+        dataset.metadata = dataset.metadata || {};
+        let filledCount = 0;
+        Object.entries(parsed).forEach(([key, value]) => {
+          if (value !== null && value !== 'null' && value !== '' && value !== 'UNKNOWN') {
+            dataset.metadata[key] = value;
+            filledCount++;
+          }
+        });
+        
+        dataset.augmented = true;
+        dataset.augmentedAt = new Date().toISOString();
+        
+        state.augmentLog.push(`✅ Filled ${filledCount} fields!`);
+        showToast(`Filled ${filledCount} empty fields!`, 'success');
+        saveState();
+        
+      } catch (error) {
+        state.augmentLog.push(`❌ Error: ${error.message}`);
+        showToast(`Augmentation failed: ${error.message}`, 'error');
+      }
+      
+      state.augmenting = false;
+      if (state.currentDataset?.id === datasetId) {
+        state.currentDataset = dataset;
+      }
+      render();
     },
     
     exportDataset: (id) => {
