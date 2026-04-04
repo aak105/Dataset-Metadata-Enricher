@@ -1100,7 +1100,7 @@ const App = (() => {
       
       // Build the prompt
       const fetchedContent = dataset.fetchedContent;
-      const prompt = `You are a research data cataloger specializing in government and secondary datasets, particularly from India.
+      const prompt = `You are a data cataloger with expertise in documenting datasets from various sources worldwide (government portals, research institutions, international organizations, private sector, etc.).
 
 ## Dataset Information
 
@@ -1130,25 +1130,22 @@ ${fetchedContent.pageText?.slice(0, 2000) || 'Not available'}
 
 ## Task
 
-Based on this information, infer the following metadata fields. Use your knowledge of:
-- Indian government data sources (data.gov.in, MoSPI, RBI, Census, etc.)
-- Common survey and administrative data structures
-- Standard data documentation practices
-${fetchedContent ? '- The actual page content fetched from the source URL (prioritize this information)' : ''}
+Infer the following metadata fields using all available context (URL patterns, page content, column names, data samples).
 
-Return ONLY a valid JSON object with these exact keys:
+Return a valid JSON object with these keys:
 ${fieldsToInfer.map(f => {
   if (f.type === 'tags') return `"${f.name}": ["tag1", "tag2", "tag3"]`;
   if (f.type === 'enum') return `"${f.name}": "one of: ${(f.options || []).join(', ')}"`;
-  return `"${f.name}": "inferred value or null if unknown"`;
+  return `"${f.name}": "inferred value"`;
 }).join(',\n')}
 
-Guidelines:
-- Be specific about Indian ministries, departments, and schemes where applicable
-- For temporal coverage, use format like "2013-2025" or "FY 2022-23"
-- For methodology, describe data collection approach if inferrable
-- If you cannot confidently infer a field, set it to null
-- Return ONLY valid JSON, no markdown formatting, no explanation`;
+RULES:
+- Provide a value for every field. Avoid null unless absolutely impossible to infer.
+- Use clues from URL domain, page content, column names, and data patterns.
+- For temporal coverage, use clear date ranges (e.g., "2015-2023", "Q1 2020 - Q4 2022").
+- For methodology, describe data collection approach based on data type.
+- Apply your knowledge of common data sources, licensing standards, and metadata practices.
+- Return ONLY valid JSON. No markdown, no explanation.`;
 
       state.augmentLog.push(`🤖 Calling ${state.settings.providers[state.settings.provider].name} API...`);
       render();
@@ -2355,7 +2352,13 @@ Guidelines:
         const sourceUrl = dataset.metadata?.['Source URL'] || '';
         const fetchedContent = dataset.fetchedContent;
         
-        const prompt = `You are a research data cataloger specializing in government and secondary datasets, particularly from India.
+        // Get already filled metadata for context
+        const existingMetadata = Object.entries(dataset.metadata || {})
+          .filter(([k, v]) => v && (!Array.isArray(v) || v.length > 0))
+          .map(([k, v]) => `- ${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+          .join('\n');
+        
+        const prompt = `You are a data cataloger with expertise in documenting datasets from various sources worldwide (government portals, research institutions, international organizations, private sector, etc.).
 
 ## Dataset Information
 
@@ -2381,25 +2384,37 @@ ${fetchedContent.keywords?.length ? `**Keywords:** ${fetchedContent.keywords.joi
 ${fetchedContent.pageText?.slice(0, 1500) || 'Not available'}
 ` : ''}
 
+${existingMetadata ? `## Already Filled Metadata\n${existingMetadata}` : ''}
+
 ## Task
 
-I need you to infer ONLY this specific field:
+Infer this field based on all available context:
 
 **Field Name:** ${field.name}
 **Field Type:** ${field.type}
 ${field.type === 'enum' ? `**Allowed Values:** ${(field.options || []).join(', ')}` : ''}
 
-Respond with ONLY the value for this field, nothing else. No JSON, no explanation, just the value.
-${field.type === 'tags' ? 'For tags, return comma-separated values like: tag1, tag2, tag3' : ''}
-${field.type === 'enum' ? `Return exactly one of these values: ${(field.options || []).join(', ')}` : ''}
-If you cannot determine the value confidently, respond with: UNKNOWN`;
+RULES:
+1. You MUST provide a value. Never respond with "unknown", "null", "n/a", or empty.
+2. Use clues from: URL domain, page content, column names, data samples, existing metadata.
+3. Apply your knowledge about common data sources, licensing, methodologies, and standards.
+4. If exact info isn't available, make a reasonable inference based on context.
+${field.type === 'tags' ? '5. Return comma-separated values like: tag1, tag2, tag3' : ''}
+${field.type === 'enum' ? `5. Return exactly one of: ${(field.options || []).join(', ')}` : ''}
+
+Respond with ONLY the value. No quotes, no explanation, no prefixes.`;
 
         const responseText = await callLLM(prompt);
         let value = responseText.trim();
         
-        // Skip if AI couldn't determine
-        if (value === 'UNKNOWN' || value.toLowerCase() === 'null' || value === '') {
-          showToast(`Could not infer "${field.name}"`, 'warning');
+        // Clean up common AI response artifacts
+        value = value.replace(/^["']|["']$/g, ''); // Remove surrounding quotes
+        value = value.replace(/^(Value:|Answer:|Result:)\s*/i, ''); // Remove prefixes
+        
+        // Check if AI still couldn't determine (be more lenient)
+        const invalidResponses = ['unknown', 'null', 'n/a', 'not available', 'not found', 'none', 'undefined'];
+        if (!value || invalidResponses.includes(value.toLowerCase())) {
+          showToast(`Could not infer "${field.name}" - try adding more context`, 'warning');
         } else {
           // Parse based on field type
           if (field.type === 'tags') {
@@ -2413,7 +2428,7 @@ If you cannot determine the value confidently, respond with: UNKNOWN`;
           dataset.metadata = dataset.metadata || {};
           dataset.metadata[field.name] = value;
           saveState();
-          showToast(`"${field.name}" inferred successfully!`, 'success');
+          showToast(`"${field.name}" filled!`, 'success');
         }
         
       } catch (error) {
@@ -2457,7 +2472,7 @@ If you cannot determine the value confidently, respond with: UNKNOWN`;
         const sourceUrl = dataset.metadata?.['Source URL'] || '';
         const fetchedContent = dataset.fetchedContent;
         
-        const prompt = `You are a research data cataloger specializing in government and secondary datasets, particularly from India.
+        const prompt = `You are a data cataloger with expertise in documenting datasets from various sources worldwide.
 
 ## Dataset Information
 
@@ -2489,7 +2504,7 @@ ${Object.entries(dataset.metadata || {}).filter(([k, v]) => v && (!Array.isArray
 
 ## Task
 
-Fill ONLY these empty fields (the ones listed below are missing values):
+Fill these empty fields using all available context:
 
 ${emptyFields.map(f => {
   if (f.type === 'tags') return `"${f.name}": ["tag1", "tag2", "tag3"]`;
@@ -2498,11 +2513,11 @@ ${emptyFields.map(f => {
   return `"${f.name}": "inferred value"`;
 }).join(',\n')}
 
-IMPORTANT: 
-- You MUST provide a value for EVERY field listed above. Do not leave any field as null.
-- Use your best inference even if not 100% certain.
-- For Indian government data, use common patterns (e.g., "Annual" for update frequency, "data.gov.in" portals, etc.)
-- Return ONLY valid JSON object with these exact keys, no explanation.`;
+RULES:
+- Provide a value for EVERY field. Never use null or empty values.
+- Use clues from URL, page content, column names, data samples, and already filled metadata.
+- Apply your knowledge of common data sources, licensing, and documentation standards.
+- Return ONLY valid JSON object with these exact keys.`;
 
         state.augmentLog.push(`🤖 Calling ${state.settings.providers[state.settings.provider].name} API...`);
         render();
