@@ -454,6 +454,11 @@
       color: var(--color-text-success);
     }
     
+    .toast-warning {
+      background: var(--color-background-warning);
+      color: var(--color-text-warning);
+    }
+    
     .toast-error {
       background: var(--color-background-danger);
       color: var(--color-text-danger);
@@ -2124,6 +2129,27 @@ Guidelines:
     
     importAndAugment: async () => {
       const preview = state.uploadPreview;
+      let fetchedContent = preview.fetchedContent || null;
+      
+      // Auto-fetch URL if not already fetched and URL is provided
+      if (!fetchedContent && preview.sourceUrl) {
+        state.fetchingUrl = true;
+        render();
+        
+        try {
+          showToast('Fetching page info...', 'info');
+          const html = await fetchUrlContent(preview.sourceUrl);
+          fetchedContent = extractMetadataFromHtml(html, preview.sourceUrl);
+          showToast('Page info fetched!', 'success');
+        } catch (error) {
+          console.warn('URL fetch failed, proceeding with AI inference only:', error);
+          showToast('Could not fetch page, using AI inference only', 'warning');
+          // Continue without fetched content - AI will infer from URL text and data
+        }
+        
+        state.fetchingUrl = false;
+      }
+      
       const newDataset = {
         id: generateId(),
         name: preview.name,
@@ -2131,7 +2157,7 @@ Guidelines:
         metadata: {
           'Source URL': preview.sourceUrl || ''
         },
-        fetchedContent: preview.fetchedContent || null,
+        fetchedContent: fetchedContent,
         augmented: false,
         createdAt: new Date().toISOString()
       };
