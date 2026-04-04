@@ -578,6 +578,13 @@ const App = (() => {
           models: ['mistral-large-latest', 'mistral-medium', 'mistral-small-latest'],
           endpoint: 'https://api.mistral.ai/v1/chat/completions'
         }
+      },
+      // OpenMetadata Integration
+      openMetadata: {
+        url: 'http://localhost:8585',
+        jwtToken: '',
+        serviceName: 'dataset_augmenter',
+        databaseName: 'default'
       }
     },
     
@@ -1274,7 +1281,7 @@ RULES:
    * Render settings view
    */
   const renderSettings = () => `
-    <div style="max-width: 600px;">
+    <div style="max-width: 700px;">
       <h2 class="card-title mb-3">LLM Configuration</h2>
       
       <div class="card mb-3">
@@ -1312,10 +1319,63 @@ RULES:
         <button onclick="App.testConnection()">Test Connection</button>
       </div>
       
-      <div style="padding: 1rem; background: var(--color-background-info); border-radius: var(--border-radius-md);">
+      <div style="padding: 1rem; background: var(--color-background-info); border-radius: var(--border-radius-md); margin-bottom: 2rem;">
         <p class="text-sm" style="color: var(--color-text-info); margin: 0;">
           🔒 Your API key is stored only in your browser's memory for this session. 
           It is never saved to disk or sent anywhere except directly to your chosen LLM provider.
+        </p>
+      </div>
+      
+      <h2 class="card-title mb-3">OpenMetadata Integration</h2>
+      
+      <div class="card mb-3">
+        <div class="form-group">
+          <label>OpenMetadata Server URL</label>
+          <input type="url" 
+                 id="omUrl" 
+                 value="${state.settings.openMetadata.url}" 
+                 onchange="App.updateOpenMetadataSetting('url', this.value)" 
+                 placeholder="http://localhost:8585">
+        </div>
+        
+        <div class="form-group">
+          <label>JWT Token <span class="text-muted">(optional, for secured instances)</span></label>
+          <input type="password" 
+                 id="omToken" 
+                 value="${state.settings.openMetadata.jwtToken}" 
+                 onchange="App.updateOpenMetadataSetting('jwtToken', this.value)" 
+                 placeholder="Leave empty for local development">
+        </div>
+        
+        <div class="grid-2" style="gap: 1rem;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Service Name</label>
+            <input type="text" 
+                   id="omService" 
+                   value="${state.settings.openMetadata.serviceName}" 
+                   onchange="App.updateOpenMetadataSetting('serviceName', this.value)" 
+                   placeholder="dataset_augmenter">
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Database Name</label>
+            <input type="text" 
+                   id="omDatabase" 
+                   value="${state.settings.openMetadata.databaseName}" 
+                   onchange="App.updateOpenMetadataSetting('databaseName', this.value)" 
+                   placeholder="default">
+          </div>
+        </div>
+        
+        <div style="margin-top: 1rem;">
+          <button onclick="App.testOpenMetadataConnection()">Test Connection</button>
+        </div>
+      </div>
+      
+      <div style="padding: 1rem; background: var(--color-background-secondary); border-radius: var(--border-radius-md);">
+        <p class="text-sm text-muted" style="margin: 0;">
+          📊 OpenMetadata integration allows you to push your cataloged datasets directly to your data catalog.
+          Make sure OpenMetadata is running and accessible at the URL above.
         </p>
       </div>
     </div>
@@ -1479,6 +1539,7 @@ RULES:
                     ${formatNumber(d.data?.rows?.length || 0)} rows · 
                     ${d.data?.headers?.length || 0} columns
                     ${d.augmented ? ' · <span class="text-success">✓ Augmented</span>' : ''}
+                    ${d.openMetadataSyncedAt ? ' · <span style="color: var(--color-text-info);">🚀 Synced</span>' : ''}
                   </p>
                 </div>
                 <div class="flex gap-2">
@@ -1662,6 +1723,10 @@ RULES:
                 <div style="border-top: 1px solid var(--color-border-tertiary);"></div>
                 <button onclick="App.exportFullDataset('${dataset.id}'); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
                   📦 Full Dataset (JSON)
+                </button>
+                <div style="border-top: 1px solid var(--color-border-tertiary);"></div>
+                <button onclick="App.pushToOpenMetadata('${dataset.id}'); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
+                  🚀 Push to OpenMetadata
                 </button>
               </div>
             </div>
@@ -2021,6 +2086,240 @@ RULES:
         }
       } catch (error) {
         showToast(`Connection failed: ${error.message}`, 'error');
+      }
+    },
+    
+    /**
+     * Update OpenMetadata settings
+     */
+    updateOpenMetadataSetting: (key, value) => {
+      state.settings.openMetadata[key] = value;
+      render();
+    },
+    
+    /**
+     * Test OpenMetadata connection
+     */
+    testOpenMetadataConnection: async () => {
+      const { url } = state.settings.openMetadata;
+      
+      if (!url) {
+        showToast('Please enter OpenMetadata URL', 'error');
+        return;
+      }
+      
+      showToast('Testing OpenMetadata connection...', 'info');
+      
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (state.settings.openMetadata.jwtToken) {
+          headers['Authorization'] = `Bearer ${state.settings.openMetadata.jwtToken}`;
+        }
+        
+        const response = await fetch(`${url}/api/v1/system/version`, {
+          method: 'GET',
+          headers
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          showToast(`Connected! OpenMetadata v${data.version}`, 'success');
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (error) {
+        showToast(`Connection failed: ${error.message}`, 'error');
+      }
+    },
+    
+    /**
+     * Push dataset to OpenMetadata
+     */
+    pushToOpenMetadata: async (datasetId) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      if (!dataset) return;
+      
+      const { url, jwtToken, serviceName, databaseName } = state.settings.openMetadata;
+      
+      if (!url) {
+        showToast('Please configure OpenMetadata in Settings', 'error');
+        return;
+      }
+      
+      showToast('Pushing to OpenMetadata...', 'info');
+      
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (jwtToken) {
+          headers['Authorization'] = `Bearer ${jwtToken}`;
+        }
+        
+        // Generate a clean table name from dataset name
+        const tableName = dataset.name
+          .replace(/\.[^.]+$/, '')  // Remove extension
+          .replace(/[^a-zA-Z0-9_]/g, '_')  // Replace special chars
+          .toLowerCase();
+        
+        const schemaName = 'default';
+        const fqn = `${serviceName}.${databaseName}.${schemaName}.${tableName}`;
+        
+        // Build table description from metadata
+        const description = [
+          dataset.metadata?.['Dataset Name'] || dataset.name,
+          dataset.metadata?.['Source Agency'] ? `**Source:** ${dataset.metadata['Source Agency']}` : '',
+          dataset.metadata?.['Source URL'] ? `**URL:** ${dataset.metadata['Source URL']}` : '',
+          dataset.metadata?.['Temporal Coverage'] ? `**Period:** ${dataset.metadata['Temporal Coverage']}` : '',
+          dataset.metadata?.['Geographic Coverage'] ? `**Coverage:** ${dataset.metadata['Geographic Coverage']}` : '',
+          dataset.metadata?.['Methodology Notes'] || '',
+        ].filter(Boolean).join('\n\n');
+        
+        // Build columns from dataset headers
+        const columns = (dataset.data?.headers || []).map((colName, index) => {
+          const stats = computeStats(dataset.data);
+          const colStats = stats?.columns?.[index];
+          
+          let colDescription = '';
+          if (colStats) {
+            colDescription = `Fill rate: ${colStats.fillRate}%, Unique values: ${colStats.uniqueCount}`;
+            if (colStats.isNumeric) {
+              colDescription += `, Range: ${colStats.min} - ${colStats.max}`;
+            }
+          }
+          
+          return {
+            name: colName.replace(/[^a-zA-Z0-9_]/g, '_'),
+            displayName: colName,
+            dataType: colStats?.isNumeric ? 'NUMBER' : colStats?.isDate ? 'DATE' : 'STRING',
+            description: colDescription || `Column: ${colName}`
+          };
+        });
+        
+        // Build tags
+        const tags = [];
+        if (Array.isArray(dataset.metadata?.Tags)) {
+          dataset.metadata.Tags.forEach(tag => {
+            tags.push({
+              tagFQN: `Tier.${tag.replace(/[^a-zA-Z0-9]/g, '')}`,
+              source: 'Classification'
+            });
+          });
+        }
+        
+        // Create table payload
+        const tablePayload = {
+          name: tableName,
+          displayName: dataset.metadata?.['Dataset Name'] || dataset.name,
+          description: description,
+          tableType: 'Regular',
+          columns: columns,
+          databaseSchema: `${serviceName}.${databaseName}.${schemaName}`,
+          tags: tags.length > 0 ? tags : undefined
+        };
+        
+        // First, try to check if database service exists
+        const serviceCheck = await fetch(`${url}/api/v1/services/databaseServices/name/${serviceName}`, {
+          method: 'GET',
+          headers
+        });
+        
+        if (!serviceCheck.ok) {
+          // Service doesn't exist, need to create it first
+          showToast('Creating database service in OpenMetadata...', 'info');
+          
+          const servicePayload = {
+            name: serviceName,
+            serviceType: 'CustomDatabase',
+            description: 'Dataset Metadata Augmenter imports',
+            connection: {
+              config: {
+                type: 'CustomDatabase',
+                sourcePythonClass: 'metadata.ingestion.source.database.customdatabase.metadata.CustomDatabaseSource'
+              }
+            }
+          };
+          
+          const createService = await fetch(`${url}/api/v1/services/databaseServices`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(servicePayload)
+          });
+          
+          if (!createService.ok) {
+            const err = await createService.json().catch(() => ({}));
+            throw new Error(err.message || `Failed to create service: ${createService.status}`);
+          }
+          
+          // Create database
+          const dbPayload = {
+            name: databaseName,
+            service: serviceName,
+            description: 'Datasets imported from Dataset Metadata Augmenter'
+          };
+          
+          await fetch(`${url}/api/v1/databases`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(dbPayload)
+          });
+          
+          // Create schema
+          const schemaPayload = {
+            name: schemaName,
+            database: `${serviceName}.${databaseName}`,
+            description: 'Default schema'
+          };
+          
+          await fetch(`${url}/api/v1/databaseSchemas`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(schemaPayload)
+          });
+        }
+        
+        // Create or update table
+        const tableResponse = await fetch(`${url}/api/v1/tables`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(tablePayload)
+        });
+        
+        if (tableResponse.ok) {
+          const result = await tableResponse.json();
+          showToast(`Pushed to OpenMetadata! Table: ${result.name}`, 'success');
+          
+          // Mark dataset as synced
+          dataset.openMetadataFqn = fqn;
+          dataset.openMetadataSyncedAt = new Date().toISOString();
+          saveState();
+          render();
+        } else {
+          const err = await tableResponse.json().catch(() => ({}));
+          
+          // If table exists, try to update
+          if (tableResponse.status === 409 || err.code === 409) {
+            const updateResponse = await fetch(`${url}/api/v1/tables`, {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify(tablePayload)
+            });
+            
+            if (updateResponse.ok) {
+              showToast('Updated existing table in OpenMetadata!', 'success');
+              dataset.openMetadataFqn = fqn;
+              dataset.openMetadataSyncedAt = new Date().toISOString();
+              saveState();
+              render();
+            } else {
+              throw new Error(err.message || `Failed: ${tableResponse.status}`);
+            }
+          } else {
+            throw new Error(err.message || `Failed: ${tableResponse.status}`);
+          }
+        }
+        
+      } catch (error) {
+        console.error('OpenMetadata push error:', error);
+        showToast(`Push failed: ${error.message}`, 'error');
       }
     },
     
