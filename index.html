@@ -556,26 +556,53 @@ const App = (() => {
     settings: {
       provider: 'anthropic',
       apiKey: '',
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       providers: {
         anthropic: { 
           name: 'Anthropic',
-          models: ['claude-sonnet-4-20250514', 'claude-opus-4-20250514', 'claude-haiku-4-20250514'],
+          models: [
+            'claude-opus-4-5-20251101',
+            'claude-sonnet-4-5-20250929',
+            'claude-sonnet-4-6-20260217',
+            'claude-opus-4-6-20260205',
+            'claude-haiku-4-5-20251001'
+          ],
           endpoint: 'https://api.anthropic.com/v1/messages'
         },
         openai: { 
           name: 'OpenAI',
-          models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'],
+          models: [
+            'gpt-5.4',
+            'gpt-5.4-mini',
+            'gpt-5.4-nano',
+            'gpt-4.1',
+            'gpt-4.1-mini',
+            'gpt-4o',
+            'o4-mini'
+          ],
           endpoint: 'https://api.openai.com/v1/chat/completions'
         },
         google: { 
           name: 'Google Gemini',
-          models: ['gemini-1.5-pro', 'gemini-1.5-flash'],
+          models: [
+            'gemini-3.1-pro-preview',
+            'gemini-3-flash-preview',
+            'gemini-2.5-pro',
+            'gemini-2.5-flash',
+            'gemini-2.5-flash-lite'
+          ],
           endpoint: 'https://generativelanguage.googleapis.com/v1beta/models'
         },
         mistral: { 
           name: 'Mistral AI',
-          models: ['mistral-large-latest', 'mistral-medium', 'mistral-small-latest'],
+          models: [
+            'mistral-large-latest',
+            'mistral-medium-3-latest',
+            'mistral-small-latest',
+            'magistral-medium-latest',
+            'magistral-small-latest',
+            'codestral-latest'
+          ],
           endpoint: 'https://api.mistral.ai/v1/chat/completions'
         }
       },
@@ -2098,6 +2125,101 @@ RULES:
     },
     
     /**
+     * Helper to make OpenMetadata API calls through proxy
+     */
+    omFetch: async (endpoint, options = {}) => {
+      const { url, jwtToken } = state.settings.openMetadata;
+      const targetUrl = `${url}${endpoint}`;
+      const proxyUrl = `/proxy/${targetUrl}`;
+      
+      const headers = { ...options.headers };
+      if (jwtToken) {
+        headers['Authorization'] = `Bearer ${jwtToken}`;
+      }
+      if (options.body) {
+        headers['Content-Type'] = 'application/json';
+      }
+      
+      const response = await fetch(proxyUrl, {
+        ...options,
+        headers
+      });
+      
+      return response;
+    },
+    
+    /**
+     * Ensure OpenMetadata service, database, and schema exist
+     * Ignores 409 (already exists) errors
+     */
+    ensureOpenMetadataStructure: async (serviceName, databaseName, schemaName) => {
+      // Try to create service (ignore if exists)
+      const servicePayload = {
+        name: serviceName,
+        serviceType: 'CustomDatabase',
+        description: 'Dataset Metadata Augmenter imports',
+        connection: {
+          config: {
+            type: 'CustomDatabase',
+            sourcePythonClass: 'metadata.ingestion.source.database.customdatabase.metadata.CustomDatabaseSource'
+          }
+        }
+      };
+      
+      const serviceResp = await App.omFetch('/api/v1/services/databaseServices', {
+        method: 'POST',
+        body: JSON.stringify(servicePayload)
+      });
+      
+      if (!serviceResp.ok && serviceResp.status !== 409) {
+        const err = await serviceResp.json().catch(() => ({}));
+        if (err.code !== 409) {
+          throw new Error(err.message || `Failed to create service: ${serviceResp.status}`);
+        }
+      }
+      
+      // Try to create database (ignore if exists)
+      const dbPayload = {
+        name: databaseName,
+        service: serviceName,
+        description: 'Datasets imported from Dataset Metadata Augmenter'
+      };
+      
+      const dbResp = await App.omFetch('/api/v1/databases', {
+        method: 'POST',
+        body: JSON.stringify(dbPayload)
+      });
+      
+      // Ignore 409 for database too
+      if (!dbResp.ok && dbResp.status !== 409) {
+        const err = await dbResp.json().catch(() => ({}));
+        if (err.code !== 409) {
+          console.warn('Database creation issue:', err);
+        }
+      }
+      
+      // Try to create schema (ignore if exists)
+      const schemaPayload = {
+        name: schemaName,
+        database: `${serviceName}.${databaseName}`,
+        description: 'Default schema'
+      };
+      
+      const schemaResp = await App.omFetch('/api/v1/databaseSchemas', {
+        method: 'POST',
+        body: JSON.stringify(schemaPayload)
+      });
+      
+      // Ignore 409 for schema too
+      if (!schemaResp.ok && schemaResp.status !== 409) {
+        const err = await schemaResp.json().catch(() => ({}));
+        if (err.code !== 409) {
+          console.warn('Schema creation issue:', err);
+        }
+      }
+    },
+    
+    /**
      * Test OpenMetadata connection
      */
     testOpenMetadataConnection: async () => {
@@ -2111,14 +2233,8 @@ RULES:
       showToast('Testing OpenMetadata connection...', 'info');
       
       try {
-        const headers = { 'Content-Type': 'application/json' };
-        if (state.settings.openMetadata.jwtToken) {
-          headers['Authorization'] = `Bearer ${state.settings.openMetadata.jwtToken}`;
-        }
-        
-        const response = await fetch(`${url}/api/v1/system/version`, {
-          method: 'GET',
-          headers
+        const response = await App.omFetch('/api/v1/system/version', {
+          method: 'GET'
         });
         
         if (response.ok) {
@@ -2149,11 +2265,6 @@ RULES:
       showToast('Pushing to OpenMetadata...', 'info');
       
       try {
-        const headers = { 'Content-Type': 'application/json' };
-        if (jwtToken) {
-          headers['Authorization'] = `Bearer ${jwtToken}`;
-        }
-        
         // Generate a clean table name from dataset name
         const tableName = dataset.name
           .replace(/\.[^.]+$/, '')  // Remove extension
@@ -2216,70 +2327,12 @@ RULES:
           tags: tags.length > 0 ? tags : undefined
         };
         
-        // First, try to check if database service exists
-        const serviceCheck = await fetch(`${url}/api/v1/services/databaseServices/name/${serviceName}`, {
-          method: 'GET',
-          headers
-        });
-        
-        if (!serviceCheck.ok) {
-          // Service doesn't exist, need to create it first
-          showToast('Creating database service in OpenMetadata...', 'info');
-          
-          const servicePayload = {
-            name: serviceName,
-            serviceType: 'CustomDatabase',
-            description: 'Dataset Metadata Augmenter imports',
-            connection: {
-              config: {
-                type: 'CustomDatabase',
-                sourcePythonClass: 'metadata.ingestion.source.database.customdatabase.metadata.CustomDatabaseSource'
-              }
-            }
-          };
-          
-          const createService = await fetch(`${url}/api/v1/services/databaseServices`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(servicePayload)
-          });
-          
-          if (!createService.ok) {
-            const err = await createService.json().catch(() => ({}));
-            throw new Error(err.message || `Failed to create service: ${createService.status}`);
-          }
-          
-          // Create database
-          const dbPayload = {
-            name: databaseName,
-            service: serviceName,
-            description: 'Datasets imported from Dataset Metadata Augmenter'
-          };
-          
-          await fetch(`${url}/api/v1/databases`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(dbPayload)
-          });
-          
-          // Create schema
-          const schemaPayload = {
-            name: schemaName,
-            database: `${serviceName}.${databaseName}`,
-            description: 'Default schema'
-          };
-          
-          await fetch(`${url}/api/v1/databaseSchemas`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(schemaPayload)
-          });
-        }
+        // Ensure service, database, and schema exist (ignore if already exists)
+        await App.ensureOpenMetadataStructure(serviceName, databaseName, schemaName);
         
         // Create or update table
-        const tableResponse = await fetch(`${url}/api/v1/tables`, {
+        const tableResponse = await App.omFetch('/api/v1/tables', {
           method: 'POST',
-          headers,
           body: JSON.stringify(tablePayload)
         });
         
@@ -2297,9 +2350,8 @@ RULES:
           
           // If table exists, try to update
           if (tableResponse.status === 409 || err.code === 409) {
-            const updateResponse = await fetch(`${url}/api/v1/tables`, {
+            const updateResponse = await App.omFetch('/api/v1/tables', {
               method: 'PUT',
-              headers,
               body: JSON.stringify(tablePayload)
             });
             
