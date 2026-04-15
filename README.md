@@ -1,214 +1,157 @@
-# 📚 Dataset Metadata Augmenter
+# Dataset Metadata Augmenter
 
-> AI-powered metadata enrichment for research datasets from government and open data platforms
+An AI-powered tool for enriching dataset metadata using LLMs. Upload a CSV or Excel file, and the tool will automatically generate comprehensive metadata based on the data structure, column names, sample values, and optionally the source URL.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+🔗 **Live Demo:** [aak105.github.io/Dataset-Metadata-Enricher](https://aak105.github.io/Dataset-Metadata-Enricher/)
 
-## Overview
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Version](https://img.shields.io/badge/version-2.1.0-green.svg)
 
-Dataset Metadata Augmenter is a client-side web application that helps researchers and data professionals catalog and enrich secondary datasets with AI-powered metadata extraction. It's particularly useful for government datasets from platforms like data.gov.in, Census India, RBI, and similar open data portals.
+## Features
 
-### Key Features
+### 🤖 AI-Powered Metadata Generation
+- Supports multiple LLM providers: Anthropic Claude, OpenAI GPT, Google Gemini, Mistral, and Perplexity
+- Local model support via Ollama or LM Studio
+- Web search integration for enhanced context (DuckDuckGo)
+- Automatic source URL fetching for additional context
 
-- **🤖 LLM-Agnostic**: Works with Anthropic Claude, OpenAI GPT-4, Google Gemini, and Mistral AI
-- **📊 Multi-Format Upload**: Supports CSV, Excel (.xlsx, .xls), JSON, TSV, and text files
-- **🔧 Dynamic Schema Builder**: Customize metadata fields with types, validation, and AI inference toggles
-- **📈 In-Data Statistics**: Automatic computation of fill rates, unique values, and data types
-- **💾 Local Persistence**: Your data stays in your browser — nothing sent to external servers except LLM calls
-- **🎨 Dark Mode Support**: Automatic theme switching based on system preferences
+### ⚖️ Quality Scoring System (NEW in v2.1)
+- **Two-agent architecture**: Proponent generates metadata, Judge scores quality (0-10)
+- **Per-field scoring** with visual indicators (🟢 🟡 🔴)
+- **Editable feedback** — modify judge suggestions before regenerating
+- **Accept/Decline/Dismiss** actions for each field
+- **Up to 3 regeneration attempts** per field with feedback loop
 
-## Screenshots
+### 📋 Schema Presets
+Based on [World Bank Metadata Standards](https://github.com/worldbank/metadata-schemas):
+- **Microdata (DDI 2.5)** — Surveys, censuses, unit-level data (31 fields)
+- **Document** — Reports, publications, PDFs (33 fields)
+- **Timeseries** — Economic indicators, time-indexed statistics (33 fields)
+- **Table** — Statistical tables, cross-tabulations (30 fields)
+- **Geospatial (ISO 19115)** — GIS data, maps, satellite imagery (40 fields)
+- **Ashoka Datalake** — Social sector datasets for India (18 fields)
 
-*Coming soon*
+### 🔗 OpenMetadata Integration
+- Push enriched datasets directly to your OpenMetadata catalog
+- Automatic creation of DatabaseService → Database → Schema → Table hierarchy
+- CORS proxy included for browser-based integration
+
+### 📤 Export Options
+- CSV, Excel, JSON formats
+- Full dataset export with data + metadata
+- Direct push to OpenMetadata
 
 ## Quick Start
 
-### Option 1: Just Use It
+### Option 1: Use Online (No Installation)
+Visit [aak105.github.io/Dataset-Metadata-Enricher](https://aak105.github.io/Dataset-Metadata-Enricher/)
 
-1. Download `index.html`
-2. Open it in any modern browser
-3. Configure your LLM API key in Settings
-4. Start uploading datasets!
-
-### Option 2: GitHub Pages
-
-1. Fork this repository
-2. Enable GitHub Pages in repository settings
-3. Access at `https://[your-username].github.io/Dataset-Metadata-Augmenter`
-
-### Option 3: Local Development
+### Option 2: Run Locally
 
 ```bash
 # Clone the repository
-git clone https://github.com/[username]/Dataset-Metadata-Augmenter.git
-cd Dataset-Metadata-Augmenter
+git clone https://github.com/aak105/Dataset-Metadata-Enricher.git
+cd Dataset-Metadata-Enricher
 
-# For the standalone HTML version, just open index.html
+# Open in browser
 open index.html
-
-# For the React version (future)
-cd react-app
-npm install
-npm run dev
+# or
+python -m http.server 8000  # then visit http://localhost:8000
 ```
 
-## Usage Guide
+### Option 3: With OpenMetadata Integration
 
-### 1. Configure LLM Provider
+```bash
+# Start the CORS proxy
+python server.py
 
-Go to **Settings** and:
-- Select your preferred LLM provider
-- Choose a model
-- Enter your API key
-
-> 🔒 **Security Note**: Your API key is stored only in browser memory for the current session. It's never persisted to disk or sent anywhere except directly to your chosen LLM provider.
-
-### 2. Customize Schema (Optional)
-
-Go to **Schema** to:
-- Add/remove metadata fields
-- Set field types (text, enum, tags, date, etc.)
-- Mark fields as required
-- Toggle AI inference per field
-- Load presets for common use cases
-
-**Available Presets:**
-- 📋 Government Dataset
-- 📝 Survey Data
-- 📈 Time Series
-
-### 3. Upload Datasets
-
-Go to **Datasets** and:
-- Click "Upload Dataset" or drag-and-drop files
-- Preview data before importing
-- Review automatic statistics
-
-**Supported Formats:**
-- CSV, TSV
-- Excel (.xlsx, .xls)
-- JSON (array of objects)
-- Plain text
-
-### 4. Augment with AI
-
-Open a dataset and:
-1. Fill in the Source URL (important for context)
-2. Click "🤖 Augment with AI"
-3. Watch the augmentation log
-4. Review and edit inferred metadata
-
-### 5. Export
-
-- **Export Metadata**: JSON with just the metadata and schema
-- **Export Full**: JSON with metadata, schema, data, and statistics
-
-## Schema Field Types
-
-| Type | Description | Example |
-|------|-------------|---------|
-| `text` | Single-line text | "Ministry of Agriculture" |
-| `longtext` | Multi-line text | Methodology notes |
-| `url` | Web URL | "https://data.gov.in/..." |
-| `date` | Date picker | "2024-01-15" |
-| `enum` | Dropdown options | "Annual", "Quarterly" |
-| `tags` | Comma-separated | "agriculture, crops, yield" |
-| `number` | Numeric value | 35000 |
-| `boolean` | Yes/No | true |
-
-## Architecture
-
-```
-Dataset-Metadata-Augmenter/
-├── index.html          # Standalone single-file application
-├── README.md           # This file
-├── LICENSE             # MIT License
-├── CONTRIBUTING.md     # Contribution guidelines
-├── .gitignore          # Git ignore rules
-│
-└── react-app/          # Future React migration scaffold
-    ├── package.json
-    ├── vite.config.js
-    ├── index.html
-    └── src/
-        ├── main.jsx
-        ├── App.jsx
-        ├── components/
-        ├── hooks/
-        ├── utils/
-        └── styles/
+# The proxy runs at http://localhost:3000
+# Configure OpenMetadata URL in Settings tab
 ```
 
-## Roadmap
+## Usage
 
-### v1.0 (Current)
-- [x] Multi-provider LLM support
-- [x] Dynamic schema builder
-- [x] CSV/Excel/JSON upload
-- [x] In-data statistics
-- [x] Local persistence
-- [x] Dark mode
+1. **Configure LLM** — Go to Settings and enter your API key (Anthropic, OpenAI, Google, etc.)
+2. **Select Schema** — Choose a preset or customize fields in the Schema tab
+3. **Upload Dataset** — Drag and drop a CSV or Excel file
+4. **Add Source URL** (optional) — Paste the data portal URL for better context
+5. **Generate Metadata** — Click "Augment with AI"
+6. **Review Quality** — Check scores, edit feedback, regenerate low-scoring fields
+7. **Export** — Download as CSV/Excel/JSON or push to OpenMetadata
 
-### v1.1 (Planned)
-- [ ] Batch augmentation for multiple datasets
-- [ ] Source URL web fetching (with CORS proxy)
-- [ ] DCAT-AP export format
-- [ ] Schema.org/Dataset export
+## Quality Scoring Rubric
 
-### v1.2 (Planned)
-- [ ] Comparison view for multiple datasets
-- [ ] Metadata quality scoring
-- [ ] Duplicate detection
-- [ ] Data lineage tracking
+| Score | Rating | Description |
+|-------|--------|-------------|
+| 9-10 | 🟢 Excellent | Clear, precise, contextually relevant, aligned with standards |
+| 7-8 | 🟢 Good | Mostly clear and accurate, minor issues |
+| 5-6 | 🟡 Satisfactory | Understandable but lacks precision or specificity |
+| 3-4 | 🔴 Needs Improvement | Lacks clarity, broad, or technically inaccurate |
+| 0-2 | 🔴 Poor | Unclear, irrelevant, or unusable |
 
-### v2.0 (Future)
-- [ ] React migration for better maintainability
-- [ ] Backend service for web fetching
-- [ ] User authentication
-- [ ] Cloud sync (optional)
-- [ ] Team collaboration
+## Local LLM Setup
+
+### Using Ollama
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull a model
+ollama pull llama3
+
+# Ollama runs at http://localhost:11434 by default
+```
+
+In the tool, select "Custom / Local Model" and use:
+- Endpoint: `http://localhost:11434/v1/chat/completions`
+- Model: `llama3`
+
+### Using LM Studio
+1. Download and install LM Studio
+2. Load a model (e.g., Mistral, Llama)
+3. Start the local server (default port 1234)
+4. Configure endpoint: `http://localhost:1234/v1/chat/completions`
+
+## OpenMetadata Setup
+
+1. Install OpenMetadata via Docker (v1.3.8+ recommended)
+2. Get JWT token: Settings → Bots → ingestion-bot → Copy Token
+3. Run the CORS proxy: `python server.py`
+4. Configure in Settings tab:
+   - OpenMetadata URL: `http://localhost:8585`
+   - JWT Token: (paste your token)
+   - Proxy URL: `http://localhost:3000`
+
+## Tech Stack
+
+- **Frontend**: Vanilla JavaScript + React-inspired state management
+- **Styling**: Custom CSS with dark/light theme support
+- **LLM Integration**: REST APIs (Anthropic, OpenAI, Google, Mistral, Perplexity)
+- **Data Processing**: Papa Parse (CSV), SheetJS (Excel)
+- **Proxy**: Python Flask (for OpenMetadata CORS)
+
+## Project Structure
+
+```
+Dataset-Metadata-Enricher/
+├── index.html      # Main application (single-file)
+├── server.py       # CORS proxy for OpenMetadata
+├── README.md       # This file
+├── CHANGELOG.md    # Version history
+└── LICENSE         # MIT License
+```
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Development Setup
+## Author
 
-For the standalone HTML version:
-1. Edit `index.html` directly
-2. Open in browser to test
-3. No build step required
+**Aakash Sharma**  
+Dataset Lead, Centre for Data Science and Analytics, Ashoka University
 
-For future React version:
-```bash
-cd react-app
-npm install
-npm run dev
-```
-
-## API Costs
-
-This tool uses your own LLM API keys. Typical costs per dataset augmentation:
-
-| Provider | Model | ~Cost |
-|----------|-------|-------|
-| Anthropic | Claude Sonnet | $0.01-0.03 |
-| Anthropic | Claude Haiku | $0.001-0.005 |
-| OpenAI | GPT-4o | $0.01-0.03 |
-| OpenAI | GPT-4o-mini | $0.001-0.005 |
-| Google | Gemini 1.5 Pro | $0.01-0.02 |
-| Mistral | Large | $0.01-0.02 |
-
-*Estimates based on ~2000 tokens per augmentation request*
-
-## Privacy & Security
-
-- **No server**: Everything runs in your browser
-- **No tracking**: No analytics or telemetry
-- **API keys**: Stored only in memory, never persisted
-- **Data storage**: Uses localStorage, stays on your device
-- **LLM calls**: Go directly to your chosen provider
+- LinkedIn: [linkedin.com/in/aakashsharma8a6888131](https://www.linkedin.com/in/aakashsharma8a6888131/)
+- GitHub: [github.com/aak105](https://github.com/aak105)
 
 ## License
 
@@ -216,12 +159,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-- Built for the research data community
-- Inspired by challenges in cataloging Indian government datasets
-- Uses [PapaParse](https://www.papaparse.com/) for CSV parsing
-- Uses [SheetJS](https://sheetjs.com/) for Excel support
-- Uses [Chart.js](https://www.chartjs.org/) for visualizations
-
----
-
-**Made with ❤️ for researchers working with secondary data**
+- [World Bank Metadata Schemas](https://github.com/worldbank/metadata-schemas) for schema standards
+- [OpenMetadata](https://open-metadata.org/) for the data catalog platform
+- [Anthropic](https://anthropic.com/), [OpenAI](https://openai.com/), [Google](https://ai.google.dev/), [Mistral](https://mistral.ai/), [Perplexity](https://perplexity.ai/) for LLM APIs

@@ -3,68 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dataset Metadata Augmenter</title>
-  <meta name="description" content="AI-powered metadata augmentation for research datasets from government and open data platforms">
-  <meta name="author" content="Aakash">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <title>Dataset Metadata Augmenter — AI-Powered Dataset Cataloging</title>
+  <meta name="description" content="Transform undocumented datasets into well-cataloged data assets. AI-powered metadata generation with World Bank standards and OpenMetadata integration.">
+  <meta name="author" content="Aakash Sharma">
+  <meta name="keywords" content="metadata, dataset, cataloging, AI, LLM, OpenMetadata, data governance, open data">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
     /* ============================================
-       CSS VARIABLES & THEME
+       CSS VARIABLES & THEME - Professional Dark Theme
        ============================================ */
     :root {
-      --color-background-primary: #ffffff;
-      --color-background-secondary: #f7f7f5;
-      --color-background-tertiary: #efefec;
-      --color-background-info: #e6f1fb;
-      --color-background-success: #eaf3de;
-      --color-background-warning: #faeeda;
-      --color-background-danger: #fcebeb;
+      /* Colors - Dark theme default */
+      --color-bg-base: #0a0a0b;
+      --color-bg-surface: #111113;
+      --color-bg-elevated: #18181b;
+      --color-bg-hover: #222225;
+      --color-bg-accent: #1a1a2e;
       
-      --color-text-primary: #1a1a1a;
-      --color-text-secondary: #666666;
-      --color-text-tertiary: #999999;
-      --color-text-info: #185fa5;
-      --color-text-success: #3b6d11;
-      --color-text-warning: #854f0b;
-      --color-text-danger: #a32d2d;
+      --color-text-primary: #fafafa;
+      --color-text-secondary: #a1a1aa;
+      --color-text-muted: #71717a;
       
-      --color-border-primary: rgba(0, 0, 0, 0.4);
-      --color-border-secondary: rgba(0, 0, 0, 0.3);
-      --color-border-tertiary: rgba(0, 0, 0, 0.15);
+      --color-border: rgba(255, 255, 255, 0.08);
+      --color-border-strong: rgba(255, 255, 255, 0.15);
       
-      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      /* Accent colors */
+      --color-accent-primary: #6366f1;
+      --color-accent-primary-hover: #818cf8;
+      --color-accent-secondary: #22d3ee;
+      --color-accent-success: #34d399;
+      --color-accent-warning: #fbbf24;
+      --color-accent-danger: #f87171;
       
-      --border-radius-sm: 4px;
-      --border-radius-md: 8px;
-      --border-radius-lg: 12px;
+      /* Gradients */
+      --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+      --gradient-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+      --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%);
       
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+      /* Typography */
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+      
+      /* Spacing */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --space-2xl: 3rem;
+      --space-3xl: 4rem;
+      
+      /* Border radius */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+      
+      /* For the tool section - keep original light/dark */
+      --color-background-primary: #18181b;
+      --color-background-secondary: #222225;
+      --color-background-tertiary: #111113;
+      --color-background-info: #1e3a5f;
+      --color-background-success: #14532d;
+      --color-background-warning: #713f12;
+      --color-background-danger: #7f1d1d;
+      
+      --color-text-info: #7dd3fc;
+      --color-text-success: #86efac;
+      --color-text-warning: #fcd34d;
+      --color-text-danger: #fca5a5;
+      
+      --color-border-primary: rgba(255, 255, 255, 0.2);
+      --color-border-secondary: rgba(255, 255, 255, 0.15);
+      --color-border-tertiary: rgba(255, 255, 255, 0.08);
     }
     
-    @media (prefers-color-scheme: dark) {
+    /* Light theme */
+    @media (prefers-color-scheme: light) {
       :root {
-        --color-background-primary: #1a1a1a;
-        --color-background-secondary: #252525;
-        --color-background-tertiary: #303030;
-        --color-background-info: #0c447c;
-        --color-background-success: #27500a;
-        --color-background-warning: #633806;
-        --color-background-danger: #791f1f;
+        --color-bg-base: #fafafa;
+        --color-bg-surface: #ffffff;
+        --color-bg-elevated: #ffffff;
+        --color-bg-hover: #f4f4f5;
+        --color-bg-accent: #eef2ff;
         
-        --color-text-primary: #f0f0f0;
-        --color-text-secondary: #a0a0a0;
-        --color-text-tertiary: #707070;
-        --color-text-info: #85b7eb;
-        --color-text-success: #c0dd97;
-        --color-text-warning: #fac775;
-        --color-text-danger: #f09595;
+        --color-text-primary: #18181b;
+        --color-text-secondary: #52525b;
+        --color-text-muted: #a1a1aa;
         
-        --color-border-primary: rgba(255, 255, 255, 0.4);
-        --color-border-secondary: rgba(255, 255, 255, 0.3);
-        --color-border-tertiary: rgba(255, 255, 255, 0.15);
+        --color-border: rgba(0, 0, 0, 0.06);
+        --color-border-strong: rgba(0, 0, 0, 0.12);
+        
+        --gradient-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.03) 100%);
+        --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+        
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+        --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.1);
+        
+        /* Tool section light theme */
+        --color-background-primary: #ffffff;
+        --color-background-secondary: #f4f4f5;
+        --color-background-tertiary: #fafafa;
+        --color-background-info: #eff6ff;
+        --color-background-success: #f0fdf4;
+        --color-background-warning: #fffbeb;
+        --color-background-danger: #fef2f2;
+        
+        --color-text-info: #1d4ed8;
+        --color-text-success: #15803d;
+        --color-text-warning: #a16207;
+        --color-text-danger: #b91c1c;
+        
+        --color-border-primary: rgba(0, 0, 0, 0.2);
+        --color-border-secondary: rgba(0, 0, 0, 0.12);
+        --color-border-tertiary: rgba(0, 0, 0, 0.06);
       }
     }
     
@@ -81,63 +147,666 @@
       font-size: 16px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
     }
     
     body {
       font-family: var(--font-sans);
-      background: var(--color-background-tertiary);
+      background: var(--color-bg-base);
       color: var(--color-text-primary);
       line-height: 1.6;
       min-height: 100vh;
     }
     
     /* ============================================
-       LAYOUT
+       SITE NAVIGATION
        ============================================ */
-    .app-container {
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 11, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    @media (prefers-color-scheme: light) {
+      .site-nav {
+        background: rgba(255, 255, 255, 0.85);
+      }
+    }
+    
+    .site-nav-inner {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem;
-    }
-    
-    .app-header {
-      margin-bottom: 2rem;
-    }
-    
-    .app-header h1 {
-      font-size: 1.75rem;
-      font-weight: 600;
+      padding: 0 var(--space-xl);
+      height: 64px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 0.5rem;
+      justify-content: space-between;
     }
     
-    .app-header p {
+    .site-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--color-text-primary);
+      text-decoration: none;
+    }
+    
+    .site-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--gradient-hero);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    
+    .site-nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    
+    .site-nav-link {
+      padding: var(--space-sm) var(--space-md);
       color: var(--color-text-secondary);
+      text-decoration: none;
       font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+    
+    .site-nav-link:hover {
+      color: var(--color-text-primary);
+      background: var(--color-bg-hover);
+    }
+    
+    .site-nav-link.active {
+      color: var(--color-accent-primary);
+    }
+    
+    .site-nav-cta {
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--color-accent-primary);
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
+    }
+    
+    .site-nav-cta:hover {
+      background: var(--color-accent-primary-hover);
+      transform: translateY(-1px);
     }
     
     /* ============================================
-       NAVIGATION
+       THEME TOGGLE
+       ============================================ */
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+      padding: 0;
+      margin: 0 var(--space-sm);
+    }
+    
+    .theme-toggle:hover {
+      background: var(--color-bg-hover);
+      border-color: var(--color-border-strong);
+      transform: scale(1.05);
+    }
+    
+    /* Default: dark theme shows moon, light shows sun */
+    .theme-icon-light { display: none; }
+    .theme-icon-dark { display: inline; }
+    
+    /* Light theme: show sun, hide moon */
+    [data-theme="light"] .theme-icon-light { display: inline; }
+    [data-theme="light"] .theme-icon-dark { display: none; }
+    
+    /* Dark theme: show moon, hide sun */
+    [data-theme="dark"] .theme-icon-light { display: none; }
+    [data-theme="dark"] .theme-icon-dark { display: inline; }
+    
+    /* System preference when no data-theme set */
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) .theme-icon-light { display: inline; }
+      :root:not([data-theme="dark"]) .theme-icon-dark { display: none; }
+    }
+    
+    /* ============================================
+       MANUAL THEME OVERRIDES
+       ============================================ */
+    [data-theme="light"] {
+      --color-bg-base: #fafafa;
+      --color-bg-surface: #ffffff;
+      --color-bg-elevated: #ffffff;
+      --color-bg-hover: #f4f4f5;
+      --color-bg-accent: #eef2ff;
+      
+      --color-text-primary: #18181b;
+      --color-text-secondary: #52525b;
+      --color-text-muted: #a1a1aa;
+      
+      --color-border: rgba(0, 0, 0, 0.06);
+      --color-border-strong: rgba(0, 0, 0, 0.12);
+      
+      --gradient-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.03) 100%);
+      --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+      
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+      --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.1);
+      
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f4f4f5;
+      --color-background-tertiary: #fafafa;
+      --color-background-info: #eff6ff;
+      --color-background-success: #f0fdf4;
+      --color-background-warning: #fffbeb;
+      --color-background-danger: #fef2f2;
+      
+      --color-text-info: #1d4ed8;
+      --color-text-success: #15803d;
+      --color-text-warning: #a16207;
+      --color-text-danger: #b91c1c;
+      
+      --color-border-primary: rgba(0, 0, 0, 0.2);
+      --color-border-secondary: rgba(0, 0, 0, 0.12);
+      --color-border-tertiary: rgba(0, 0, 0, 0.06);
+    }
+    
+    [data-theme="light"] .site-nav {
+      background: rgba(255, 255, 255, 0.85);
+    }
+    
+    [data-theme="dark"] {
+      --color-bg-base: #0a0a0b;
+      --color-bg-surface: #111113;
+      --color-bg-elevated: #18181b;
+      --color-bg-hover: #222225;
+      --color-bg-accent: #1a1a2e;
+      
+      --color-text-primary: #fafafa;
+      --color-text-secondary: #a1a1aa;
+      --color-text-muted: #71717a;
+      
+      --color-border: rgba(255, 255, 255, 0.08);
+      --color-border-strong: rgba(255, 255, 255, 0.15);
+      
+      --gradient-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+      --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%);
+      
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+      
+      --color-background-primary: #18181b;
+      --color-background-secondary: #222225;
+      --color-background-tertiary: #111113;
+      --color-background-info: #1e3a5f;
+      --color-background-success: #14532d;
+      --color-background-warning: #713f12;
+      --color-background-danger: #7f1d1d;
+      
+      --color-text-info: #7dd3fc;
+      --color-text-success: #86efac;
+      --color-text-warning: #fcd34d;
+      --color-text-danger: #fca5a5;
+      
+      --color-border-primary: rgba(255, 255, 255, 0.2);
+      --color-border-secondary: rgba(255, 255, 255, 0.15);
+      --color-border-tertiary: rgba(255, 255, 255, 0.08);
+    }
+    
+    [data-theme="dark"] .site-nav {
+      background: rgba(10, 10, 11, 0.8);
+    }
+    
+    /* ============================================
+       HERO SECTION
+       ============================================ */
+    .hero {
+      padding: calc(64px + var(--space-3xl)) var(--space-xl) var(--space-3xl);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xs) var(--space-md);
+      background: var(--gradient-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--color-accent-primary);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--color-accent-success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .hero-title {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: var(--space-lg);
+      letter-spacing: -0.02em;
+    }
+    
+    .hero-title-gradient {
+      background: var(--gradient-hero);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-description {
+      font-size: 1.25rem;
+      color: var(--color-text-secondary);
+      max-width: 600px;
+      margin: 0 auto var(--space-xl);
+      line-height: 1.7;
+    }
+    
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-xl);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: var(--color-accent-primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+    
+    .btn-primary:hover {
+      background: var(--color-accent-primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+    
+    .btn-secondary {
+      background: var(--color-bg-elevated);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-strong);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--color-bg-hover);
+      border-color: var(--color-text-muted);
+    }
+    
+    .hero-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xl);
+      margin-top: var(--space-xl);
+    }
+    
+    .hero-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    
+    .hero-link:hover {
+      color: var(--color-text-primary);
+    }
+    
+    /* ============================================
+       FEATURES SECTION
+       ============================================ */
+    .features {
+      padding: var(--space-3xl) var(--space-xl);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: var(--space-2xl);
+    }
+    
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+    }
+    
+    .section-description {
+      color: var(--color-text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-lg);
+    }
+    
+    .feature-card {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover {
+      border-color: var(--color-border-strong);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: var(--space-md);
+    }
+    
+    .feature-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .feature-description {
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    
+    /* ============================================
+       COMPARISON TABLE
+       ============================================ */
+    .comparison {
+      padding: var(--space-3xl) var(--space-xl);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--color-bg-surface);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+      padding: var(--space-md) var(--space-lg);
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .comparison-table th {
+      background: var(--color-bg-elevated);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+    }
+    
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .comparison-table .highlight {
+      background: var(--gradient-subtle);
+      font-weight: 600;
+    }
+    
+    /* ============================================
+       GUIDE SECTION
+       ============================================ */
+    .guide {
+      padding: calc(64px + var(--space-2xl)) var(--space-xl) var(--space-3xl);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .guide h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: var(--space-lg);
+    }
+    
+    .guide h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: var(--space-2xl);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .guide h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-sm);
+    }
+    
+    .guide p {
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-md);
+      line-height: 1.8;
+    }
+    
+    .guide ul, .guide ol {
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-md);
+      padding-left: var(--space-xl);
+    }
+    
+    .guide li {
+      margin-bottom: var(--space-sm);
+    }
+    
+    .guide code {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+      background: var(--color-bg-elevated);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    
+    .guide pre {
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      overflow-x: auto;
+      margin-bottom: var(--space-lg);
+    }
+    
+    .guide pre code {
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    
+    .guide-step {
+      display: flex;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      padding: var(--space-lg);
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+    
+    .guide-step-number {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-hero);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    
+    .guide-step-content h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .guide-step-content p {
+      margin-bottom: 0;
+    }
+    
+    /* ============================================
+       TOOL SECTION (App Container)
+       ============================================ */
+    .tool-section {
+      padding: calc(64px + var(--space-lg)) var(--space-xl) var(--space-2xl);
+    }
+    
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .app-header {
+      display: none; /* Hide original header, using site nav instead */
+    }
+    
+    /* ============================================
+       FOOTER
+       ============================================ */
+    .site-footer {
+      padding: var(--space-2xl) var(--space-xl);
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+    }
+    
+    .site-footer p {
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .site-footer a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .site-footer a:hover {
+      color: var(--color-accent-primary);
+    }
+    
+    /* ============================================
+       TOOL NAVIGATION (inside app)
        ============================================ */
     .nav-tabs {
       display: flex;
-      gap: 8px;
-      padding: 1rem 0;
+      gap: var(--space-sm);
+      padding: var(--space-md) 0;
       border-bottom: 1px solid var(--color-border-tertiary);
-      margin-bottom: 2rem;
+      margin-bottom: var(--space-xl);
     }
     
     .nav-tab {
-      padding: 10px 20px;
+      padding: var(--space-sm) var(--space-lg);
       border: none;
       background: transparent;
       color: var(--color-text-secondary);
       font-size: 0.95rem;
       font-family: inherit;
+      font-weight: 500;
       cursor: pointer;
-      border-radius: var(--border-radius-md);
+      border-radius: var(--radius-md);
       transition: all 0.2s ease;
     }
     
@@ -147,9 +816,8 @@
     }
     
     .nav-tab.active {
-      background: var(--color-background-secondary);
-      color: var(--color-text-primary);
-      font-weight: 500;
+      background: var(--color-accent-primary);
+      color: white;
     }
     
     /* ============================================
@@ -158,128 +826,126 @@
     .card {
       background: var(--color-background-primary);
       border: 1px solid var(--color-border-tertiary);
-      border-radius: var(--border-radius-lg);
-      padding: 1.5rem;
-    }
-    
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
     }
     
     .card-title {
       font-size: 1.1rem;
-      font-weight: 500;
-    }
-    
-    .metric-card {
-      background: var(--color-background-secondary);
-      border-radius: var(--border-radius-md);
-      padding: 1rem 1.25rem;
-    }
-    
-    .metric-label {
-      font-size: 0.8rem;
-      color: var(--color-text-secondary);
-      margin-bottom: 4px;
-    }
-    
-    .metric-value {
-      font-size: 1.5rem;
       font-weight: 600;
+      margin-bottom: var(--space-md);
     }
+    
+    .mb-2 { margin-bottom: var(--space-md); }
+    .mb-3 { margin-bottom: var(--space-lg); }
+    .mt-2 { margin-top: var(--space-md); }
+    .mt-3 { margin-top: var(--space-lg); }
     
     /* ============================================
-       FORM ELEMENTS
+       FORMS
        ============================================ */
-    input, select, textarea {
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: var(--space-sm);
+      color: var(--color-text-primary);
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="url"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
       font-family: inherit;
       font-size: 0.95rem;
-      padding: 10px 14px;
-      border: 1px solid var(--color-border-tertiary);
-      border-radius: var(--border-radius-md);
-      background: var(--color-background-primary);
       color: var(--color-text-primary);
-      width: 100%;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
     }
     
-    input:focus, select:focus, textarea:focus {
+    input:focus,
+    select:focus,
+    textarea:focus {
       outline: none;
-      border-color: var(--color-border-secondary);
-      box-shadow: 0 0 0 3px var(--color-background-info);
-    }
-    
-    input[type="checkbox"] {
-      width: auto;
-      cursor: pointer;
+      border-color: var(--color-accent-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
     
     textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 100px;
     }
     
-    label {
+    small.text-muted {
       display: block;
-      font-size: 0.85rem;
-      color: var(--color-text-secondary);
-      margin-bottom: 6px;
-    }
-    
-    .form-group {
-      margin-bottom: 1.25rem;
+      margin-top: var(--space-xs);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
     }
     
     /* ============================================
        BUTTONS
        ============================================ */
-    button, .btn {
-      font-family: inherit;
-      font-size: 0.9rem;
-      padding: 10px 18px;
-      border: 1px solid var(--color-border-secondary);
-      border-radius: var(--border-radius-md);
-      background: transparent;
-      color: var(--color-text-primary);
-      cursor: pointer;
-      transition: all 0.2s ease;
+    button {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-lg);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: white;
+      background: var(--color-accent-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
     
-    button:hover, .btn:hover {
-      background: var(--color-background-secondary);
-    }
-    
-    button:active, .btn:active {
-      transform: scale(0.98);
+    button:hover {
+      background: var(--color-accent-primary-hover);
+      transform: translateY(-1px);
     }
     
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
     }
     
-    .btn-primary {
-      background: var(--color-background-info);
-      color: var(--color-text-info);
-      border-color: transparent;
+    button.btn-secondary {
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-tertiary);
     }
     
-    .btn-primary:hover {
-      filter: brightness(0.95);
+    button.btn-secondary:hover {
+      background: var(--color-bg-hover);
     }
     
-    .btn-danger {
-      color: var(--color-text-danger);
+    button.btn-danger {
+      background: var(--color-accent-danger);
     }
     
-    .btn-sm {
-      padding: 6px 12px;
+    button.btn-success {
+      background: var(--color-accent-success);
+    }
+    
+    button.btn-sm {
+      padding: var(--space-xs) var(--space-sm);
       font-size: 0.8rem;
     }
     
@@ -289,7 +955,7 @@
     .table-container {
       overflow-x: auto;
       border: 1px solid var(--color-border-tertiary);
-      border-radius: var(--border-radius-lg);
+      border-radius: var(--radius-md);
     }
     
     table {
@@ -299,123 +965,201 @@
     }
     
     th, td {
-      padding: 12px 16px;
+      padding: var(--space-sm) var(--space-md);
       text-align: left;
+      border-bottom: 1px solid var(--color-border-tertiary);
     }
     
     th {
       background: var(--color-background-secondary);
-      font-weight: 500;
-      white-space: nowrap;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
     }
     
-    tr:not(:last-child) td {
-      border-bottom: 1px solid var(--color-border-tertiary);
+    tr:last-child td {
+      border-bottom: none;
     }
+    
+    tr:hover td {
+      background: var(--color-background-secondary);
+    }
+    
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
     
     /* ============================================
        BADGES & TAGS
        ============================================ */
     .badge {
       display: inline-block;
-      padding: 3px 10px;
+      padding: 2px 8px;
       font-size: 0.75rem;
       font-weight: 500;
-      border-radius: var(--border-radius-sm);
+      border-radius: 100px;
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
     }
     
-    .badge-info {
-      background: var(--color-background-info);
-      color: var(--color-text-info);
+    .badge-info { background: var(--color-background-info); color: var(--color-text-info); }
+    .badge-success { background: var(--color-background-success); color: var(--color-text-success); }
+    .badge-warning { background: var(--color-background-warning); color: var(--color-text-warning); }
+    .badge-danger { background: var(--color-background-danger); color: var(--color-text-danger); }
+    
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: var(--gradient-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      margin: 2px;
     }
     
-    .badge-success {
-      background: var(--color-background-success);
-      color: var(--color-text-success);
+    .tag-remove {
+      cursor: pointer;
+      opacity: 0.6;
+      font-size: 1rem;
+      line-height: 1;
     }
     
-    .badge-warning {
-      background: var(--color-background-warning);
-      color: var(--color-text-warning);
-    }
-    
-    .badge-danger {
-      background: var(--color-background-danger);
-      color: var(--color-text-danger);
+    .tag-remove:hover {
+      opacity: 1;
     }
     
     /* ============================================
-       GRID LAYOUTS
+       TEXT UTILITIES
+       ============================================ */
+    .text-sm { font-size: 0.875rem; }
+    .text-muted { color: var(--color-text-muted); }
+    .text-success { color: var(--color-text-success); }
+    .text-warning { color: var(--color-text-warning); }
+    .text-danger { color: var(--color-text-danger); }
+    .font-medium { font-weight: 500; }
+    
+    /* Hidden utility */
+    .hidden { display: none !important; }
+    .font-mono { font-family: var(--font-mono); }
+    
+    /* ============================================
+       GRID UTILITIES
        ============================================ */
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
+      gap: var(--space-lg);
     }
     
-    .grid-4 {
+    .grid-3 {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
     }
     
     @media (max-width: 768px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
     }
     
     /* ============================================
-       UPLOAD AREA
+       DATASET CARDS
        ============================================ */
-    .upload-area {
-      border: 2px dashed var(--color-border-tertiary);
-      border-radius: var(--border-radius-lg);
-      padding: 3rem 2rem;
-      text-align: center;
-      background: var(--color-background-secondary);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .upload-area:hover {
-      border-color: var(--color-border-secondary);
-      background: var(--color-background-tertiary);
-    }
-    
-    .upload-area input[type="file"] {
-      display: none;
-    }
-    
-    /* ============================================
-       DATASET LIST
-       ============================================ */
-    .dataset-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 1.25rem;
+    .dataset-card {
       background: var(--color-background-primary);
       border: 1px solid var(--color-border-tertiary);
-      border-radius: var(--border-radius-lg);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .dataset-card:hover {
+      border-color: var(--color-accent-primary);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .dataset-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .dataset-card-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .dataset-card-meta {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+    
+    /* ============================================
+       METRICS
+       ============================================ */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .metric-card {
+      background: var(--gradient-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      text-align: center;
+    }
+    
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-xs);
+    }
+    
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-accent-primary);
+    }
+    
+    /* ============================================
+       UPLOAD ZONE
+       ============================================ */
+    .upload-zone {
+      border: 2px dashed var(--color-border-strong);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2xl);
+      text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      margin-bottom: 0.75rem;
+      background: var(--color-background-secondary);
     }
     
-    .dataset-item:hover {
-      border-color: var(--color-border-secondary);
-      box-shadow: var(--shadow-sm);
+    .upload-zone:hover {
+      border-color: var(--color-accent-primary);
+      background: var(--gradient-subtle);
     }
     
-    .dataset-info h3 {
-      font-size: 1rem;
+    .upload-zone-icon {
+      font-size: 3rem;
+      margin-bottom: var(--space-md);
+    }
+    
+    .upload-zone-text {
+      font-size: 1.1rem;
       font-weight: 500;
-      margin-bottom: 4px;
+      margin-bottom: var(--space-sm);
     }
     
-    .dataset-meta {
-      font-size: 0.85rem;
-      color: var(--color-text-secondary);
+    .upload-zone-hint {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
     }
     
     /* ============================================
@@ -423,99 +1167,189 @@
        ============================================ */
     .toast {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      padding: 14px 24px;
-      border-radius: var(--border-radius-md);
-      font-size: 0.9rem;
-      font-weight: 500;
-      z-index: 1000;
+      bottom: var(--space-xl);
+      right: var(--space-xl);
+      padding: var(--space-md) var(--space-xl);
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      z-index: 10000;
       animation: slideIn 0.3s ease;
+      max-width: 400px;
     }
+    
+    .toast-success { border-left: 4px solid var(--color-accent-success); }
+    .toast-error { border-left: 4px solid var(--color-accent-danger); }
+    .toast-warning { border-left: 4px solid var(--color-accent-warning); }
+    .toast-info { border-left: 4px solid var(--color-accent-primary); }
     
     @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    
-    .toast-info {
-      background: var(--color-background-info);
-      color: var(--color-text-info);
-    }
-    
-    .toast-success {
-      background: var(--color-background-success);
-      color: var(--color-text-success);
-    }
-    
-    .toast-warning {
-      background: var(--color-background-warning);
-      color: var(--color-text-warning);
-    }
-    
-    .toast-error {
-      background: var(--color-background-danger);
-      color: var(--color-text-danger);
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
     
     /* ============================================
        CHART CONTAINER
        ============================================ */
     .chart-container {
+      height: 200px;
       position: relative;
-      height: 220px;
-      margin-top: 1rem;
     }
     
     /* ============================================
-       UTILITIES
+       AUGMENT LOG
        ============================================ */
-    .text-muted { color: var(--color-text-secondary); }
-    .text-success { color: var(--color-text-success); }
-    .text-warning { color: var(--color-text-warning); }
-    .text-danger { color: var(--color-text-danger); }
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    .text-sm { font-size: 0.85rem; }
-    .text-xs { font-size: 0.75rem; }
-    .font-medium { font-weight: 500; }
-    .mb-1 { margin-bottom: 0.5rem; }
-    .mb-2 { margin-bottom: 1rem; }
-    .mb-3 { margin-bottom: 1.5rem; }
-    .mt-2 { margin-top: 1rem; }
-    .mt-3 { margin-top: 1.5rem; }
-    .flex { display: flex; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .gap-2 { gap: 0.5rem; }
-    .gap-3 { gap: 1rem; }
-    .hidden { display: none; }
+    .augment-log {
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .augment-log-entry {
+      padding: var(--space-xs) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .augment-log-entry:last-child {
+      border-bottom: none;
+    }
+    
+    /* ============================================
+       SCHEMA PRESETS
+       ============================================ */
+    .preset-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .preset-btn {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .preset-btn:hover {
+      background: var(--gradient-subtle);
+      border-color: var(--color-accent-primary);
+    }
+    
+    /* ============================================
+       DROPDOWN MENU
+       ============================================ */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      min-width: 180px;
+      z-index: 100;
+      overflow: hidden;
+    }
+    
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      background: none;
+      border: none;
+      color: var(--color-text-primary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .dropdown-item:hover {
+      background: var(--color-bg-hover);
+    }
+    
+    .dropdown-divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: var(--space-xs) 0;
+    }
+    
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 768px) {
+      .site-nav-inner {
+        padding: 0 var(--space-md);
+      }
+      
+      .site-nav-links {
+        display: none;
+      }
+      
+      .hero {
+        padding: calc(64px + var(--space-xl)) var(--space-md) var(--space-xl);
+      }
+      
+      .hero-title {
+        font-size: 2rem;
+      }
+      
+      .hero-description {
+        font-size: 1rem;
+      }
+      
+      .features, .comparison, .guide {
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+      }
+      
+      .tool-section {
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <header class="app-header">
-      <h1>📚 Dataset Metadata Augmenter</h1>
-      <p>AI-powered metadata enrichment for research datasets from government and open data platforms</p>
-    </header>
-    
-    <div id="app">
-      <!-- App renders here -->
+  <!-- Site Navigation -->
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a href="#" class="site-logo" onclick="App.showPage('home'); return false;">
+        <span class="site-logo-icon">📊</span>
+        <span>Dataset Metadata Augmenter</span>
+      </a>
+      <div class="site-nav-links">
+        <a href="#" class="site-nav-link" onclick="App.showPage('home'); return false;">Home</a>
+        <a href="#" class="site-nav-link" onclick="App.showPage('guide'); return false;">Guide</a>
+        <a href="https://github.com/aak105/Dataset-Metadata-Enricher" target="_blank" class="site-nav-link">GitHub ↗</a>
+        <button class="theme-toggle" onclick="App.toggleTheme()" title="Toggle light/dark theme">
+          <span class="theme-icon-light">☀️</span>
+          <span class="theme-icon-dark">🌙</span>
+        </button>
+        <a href="#" class="site-nav-cta" onclick="App.showPage('tool'); return false;">Open Tool →</a>
+      </div>
     </div>
-    
-    <footer style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border-tertiary); text-align: center;">
-      <p style="font-size: 0.85rem; color: var(--color-text-secondary);">
-        Built by <a href="https://www.linkedin.com/in/aakashsharma8a6888131/" target="_blank" rel="noopener" style="color: var(--color-text-info); text-decoration: none;">Aakash Sharma</a> · 
-        <a href="https://github.com/aakashsharma8a6888131/Dataset-Metadata-Augmenter" target="_blank" rel="noopener" style="color: var(--color-text-secondary); text-decoration: none;">GitHub</a> · 
-        MIT License
-      </p>
-    </footer>
+  </nav>
+
+  <!-- Page Container -->
+  <div id="page-container">
+    <!-- Content rendered by JavaScript -->
   </div>
   
   <!-- Chart.js for statistics visualization -->
@@ -530,17 +1364,429 @@
   <script>
 /**
  * ============================================
- * DATASET METADATA AUGMENTER
+ * DATASET METADATA AUGMENTER v2.0
  * ============================================
  * A client-side application for cataloging and enriching
  * research datasets with AI-powered metadata extraction.
  * 
  * Author: Aakash Sharma (https://www.linkedin.com/in/aakashsharma8a6888131/)
  * License: MIT
- * Repository: https://github.com/aakashsharma8a6888131/Dataset-Metadata-Augmenter
+ * Repository: https://github.com/aak105/Dataset-Metadata-Enricher
  */
 
 const App = (() => {
+  // ============================================
+  // PAGE STATE (for site navigation)
+  // ============================================
+  let currentPage = 'home'; // 'home' | 'guide' | 'tool'
+  
+  // ============================================
+  // LANDING PAGE CONTENT
+  // ============================================
+  
+  const renderHomePage = () => {
+    return `
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            <span>Open Source · MIT License</span>
+          </div>
+          <h1 class="hero-title">
+            <span class="hero-title-gradient">AI-Powered</span> Dataset<br>Metadata Generation
+          </h1>
+          <p class="hero-description">
+            Transform undocumented datasets into well-cataloged data assets. 
+            Uses LLMs to auto-generate metadata following World Bank standards, 
+            with OpenMetadata integration for enterprise catalogs.
+          </p>
+          <div class="hero-actions">
+            <a href="#" class="btn btn-primary" onclick="App.showPage('tool'); return false;">
+              Open Tool →
+            </a>
+            <a href="#" class="btn btn-secondary" onclick="App.showPage('guide'); return false;">
+              Read the Guide
+            </a>
+          </div>
+          <div class="hero-links">
+            <a href="https://github.com/aak105/Dataset-Metadata-Enricher" target="_blank" class="hero-link">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <a href="https://www.linkedin.com/in/aakashsharma8a6888131/" target="_blank" class="hero-link">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              Author
+            </a>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Features Section -->
+      <section class="features">
+        <div class="section-header">
+          <h2 class="section-title">Built for Data Practitioners</h2>
+          <p class="section-description">
+            Everything you need to document research datasets from government portals, surveys, and open data platforms.
+          </p>
+        </div>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3 class="feature-title">Multi-Provider LLM Support</h3>
+            <p class="feature-description">
+              Works with Anthropic Claude, OpenAI GPT, Google Gemini, Mistral, Perplexity, and local models via Ollama or LM Studio.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3 class="feature-title">World Bank Standards</h3>
+            <p class="feature-description">
+              Pre-built schema presets for DDI 2.5 (microdata), timeseries, documents, tables, ISO 19115 geospatial, and Ashoka Datalake metadata.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3 class="feature-title">OpenMetadata Integration</h3>
+            <p class="feature-description">
+              Push enriched metadata directly to your OpenMetadata catalog. Create services, databases, and tables via API.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Full Data Statistics</h3>
+            <p class="feature-description">
+              Scans entire dataset for time ranges, geographic coverage, categorical distributions, and numeric ranges.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h3 class="feature-title">Web Search Enhancement</h3>
+            <p class="feature-description">
+              Optionally fetch source URLs to extract methodology, licensing, and context from original data portals.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3 class="feature-title">Privacy-First</h3>
+            <p class="feature-description">
+              Runs entirely in your browser. Data never leaves your machine unless you choose to call an LLM API.
+            </p>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Comparison Section -->
+      <section class="comparison">
+        <div class="section-header">
+          <h2 class="section-title">Why This Tool?</h2>
+          <p class="section-description">
+            Manual metadata creation is tedious. LLMs can help, but need structure.
+          </p>
+        </div>
+        
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Approach</th>
+              <th>Time per Dataset</th>
+              <th>Consistency</th>
+              <th>Standards</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Manual documentation</td>
+              <td>30-60 min</td>
+              <td>Variable</td>
+              <td>Often ad-hoc</td>
+            </tr>
+            <tr>
+              <td>Generic LLM prompting</td>
+              <td>10-15 min</td>
+              <td>Inconsistent</td>
+              <td>No schema</td>
+            </tr>
+            <tr class="highlight">
+              <td><strong>This Tool</strong></td>
+              <td><strong>2-5 min</strong></td>
+              <td><strong>Structured</strong></td>
+              <td><strong>World Bank / IHSN</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      
+      <!-- CTA Section -->
+      <section class="features" style="text-align: center; padding-bottom: 4rem;">
+        <h2 class="section-title">Ready to Get Started?</h2>
+        <p class="section-description" style="margin-bottom: 2rem;">
+          Upload a CSV or Excel file, configure your LLM provider, and generate metadata in minutes.
+        </p>
+        <a href="#" class="btn btn-primary" onclick="App.showPage('tool'); return false;">
+          Open the Tool →
+        </a>
+      </section>
+      
+      <!-- Footer -->
+      <footer class="site-footer">
+        <p>
+          Built by <a href="https://www.linkedin.com/in/aakashsharma8a6888131/" target="_blank">Aakash Sharma</a> · 
+          <a href="https://github.com/aak105/Dataset-Metadata-Enricher" target="_blank">GitHub</a> · 
+          MIT License
+        </p>
+      </footer>
+    `;
+  };
+  
+  const renderGuidePage = () => {
+    return `
+      <section class="guide">
+        <h1>Getting Started Guide</h1>
+        <p>
+          This guide walks you through using the Dataset Metadata Augmenter to document your research datasets.
+        </p>
+        
+        <h2>Quick Start</h2>
+        
+        <div class="guide-step">
+          <div class="guide-step-number">1</div>
+          <div class="guide-step-content">
+            <h4>Configure your LLM Provider</h4>
+            <p>Go to Settings tab and enter your API key for Anthropic, OpenAI, Google, Mistral, or Perplexity. For local models, select "Custom / Local Model" and configure your Ollama or LM Studio endpoint.</p>
+          </div>
+        </div>
+        
+        <div class="guide-step">
+          <div class="guide-step-number">2</div>
+          <div class="guide-step-content">
+            <h4>Choose a Metadata Schema</h4>
+            <p>Go to Schema tab and select a preset (Microdata DDI, Timeseries, Document, Table, or Geospatial) or customize fields for your use case.</p>
+          </div>
+        </div>
+        
+        <div class="guide-step">
+          <div class="guide-step-number">3</div>
+          <div class="guide-step-content">
+            <h4>Upload Your Dataset</h4>
+            <p>In the Datasets tab, drag and drop a CSV or Excel file. The tool will show a preview and compute statistics about your data.</p>
+          </div>
+        </div>
+        
+        <div class="guide-step">
+          <div class="guide-step-number">4</div>
+          <div class="guide-step-content">
+            <h4>Add Source URL (Optional)</h4>
+            <p>If your data comes from a portal like data.gov.in or MoSPI, paste the URL and click "Fetch". The tool will extract context to help the LLM generate better metadata.</p>
+          </div>
+        </div>
+        
+        <div class="guide-step">
+          <div class="guide-step-number">5</div>
+          <div class="guide-step-content">
+            <h4>Generate Metadata</h4>
+            <p>Click "Augment with AI" to have the LLM fill in all metadata fields. You can also click the ✨ button next to individual fields to regenerate specific entries.</p>
+          </div>
+        </div>
+        
+        <div class="guide-step">
+          <div class="guide-step-number">6</div>
+          <div class="guide-step-content">
+            <h4>Export or Push to Catalog</h4>
+            <p>Export your metadata as CSV, Excel, or JSON. Or push directly to OpenMetadata if you have it configured.</p>
+          </div>
+        </div>
+        
+        <h2>Schema Presets</h2>
+        
+        <h3>Microdata (DDI 2.5)</h3>
+        <p>For survey data like NSSO, NFHS, Census microdata. Includes 31 fields covering study description, methodology, sampling, access conditions, and variable documentation.</p>
+        
+        <h3>Document</h3>
+        <p>For reports, publications, and policy documents. Based on Dublin Core with 33 fields for bibliographic metadata.</p>
+        
+        <h3>Timeseries</h3>
+        <p>For economic indicators, time-indexed statistics. Includes 33 fields for frequency, aggregation methods, base periods, and seasonal adjustment.</p>
+        
+        <h3>Table</h3>
+        <p>For statistical tables and cross-tabulations. 30 fields describing table structure, row/column definitions, and statistical measures.</p>
+        
+        <h3>Geospatial (ISO 19115)</h3>
+        <p>For GIS data, maps, satellite imagery. 40 fields including bounding box coordinates, spatial reference systems, and resolution metadata.</p>
+        
+        <h3>Ashoka Datalake</h3>
+        <p>For social sector datasets in India. 18 fields designed for the Ashoka University Social Datalake Project, covering domain/cluster, spatial and temporal coverage, methodology, and data quality notes.</p>
+        
+        <h2>OpenMetadata Integration</h2>
+        
+        <h3>Setup</h3>
+        <ol>
+          <li>Install OpenMetadata via Docker (version 1.3.8+ recommended)</li>
+          <li>Get your JWT token from: Settings → Bots → ingestion-bot → Copy Token</li>
+          <li>In the tool's Settings tab, enter your OpenMetadata URL and JWT token</li>
+          <li>Run the Python CORS proxy: <code>python server.py</code></li>
+        </ol>
+        
+        <h3>Pushing Datasets</h3>
+        <p>After enriching a dataset, click "Push to OpenMetadata". The tool will:</p>
+        <ol>
+          <li>Create a DatabaseService (if not exists)</li>
+          <li>Create a Database (if not exists)</li>
+          <li>Create the Table with columns and metadata</li>
+        </ol>
+        
+        <h2>Local LLM Setup</h2>
+        
+        <h3>Using Ollama</h3>
+        <pre><code># Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull a model
+ollama pull llama3
+
+# Ollama runs at http://localhost:11434 by default</code></pre>
+        
+        <p>In the tool, select "Custom / Local Model" and use endpoint: <code>http://localhost:11434/v1/chat/completions</code></p>
+        
+        <h3>Using LM Studio</h3>
+        <p>Download LM Studio, load a model, start the local server (default port 1234), then configure the tool with endpoint: <code>http://localhost:1234/v1/chat/completions</code></p>
+        
+        <h2>Tips for Best Results</h2>
+        <ul>
+          <li><strong>Include the source URL</strong> — The LLM can extract methodology and context from the original portal</li>
+          <li><strong>Use descriptive filenames</strong> — The filename is used as a hint for the dataset title</li>
+          <li><strong>Review and edit</strong> — AI-generated metadata is a starting point; always verify accuracy</li>
+          <li><strong>Use larger models for complex datasets</strong> — Claude Opus or GPT-4 produce better results than smaller models</li>
+        </ul>
+        
+        <h2>Quality Scoring System</h2>
+        
+        <p>The tool uses a two-agent approach to ensure metadata quality:</p>
+        <ol>
+          <li><strong>Proponent Agent</strong> — Generates metadata values based on dataset context</li>
+          <li><strong>Judge Agent</strong> — Evaluates each field using a quality rubric (0-10 scale)</li>
+        </ol>
+        
+        <p>After generation, you can review scores, edit the judge's feedback, and regenerate low-scoring fields (up to 3 attempts per field).</p>
+        
+        <h3>Quality Rubric</h3>
+        
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <thead>
+              <tr style="background: var(--color-background-secondary);">
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--color-border);">Score</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--color-border);">Rating</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--color-border);">Criteria</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><span style="color: var(--color-accent-success); font-weight: 600;">9-10</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><strong>🟢 Excellent</strong></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);">Clear, precise, and contextually relevant. Focused and specific, avoiding unnecessary breadth. Highly usable and aligned with metadata standards.</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><span style="color: var(--color-accent-success); font-weight: 600;">7-8</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><strong>🟢 Good</strong></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);">Mostly clear and accurate, contextually relevant and specific. Minor issues in precision or technical accuracy. Remains usable and aligned with standards.</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><span style="color: var(--color-accent-warning); font-weight: 600;">5-6</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><strong>🟡 Satisfactory</strong></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);">Generally understandable but may lack precision or specificity. May include some broad statements, reducing effectiveness. Generally relevant and technically accurate.</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><span style="color: var(--color-accent-danger); font-weight: 600;">3-4</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><strong>🔴 Needs Improvement</strong></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);">Lacks clarity, specificity, or relevance. May be broad, general, or technically inaccurate. Limited usability and alignment with standards.</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><span style="color: var(--color-accent-danger); font-weight: 600;">0-2</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);"><strong>🔴 Poor</strong></td>
+                <td style="padding: 12px; border-bottom: 1px solid var(--color-border-tertiary);">Unclear, overly broad, or irrelevant to context. May contain significant inaccuracies, misuse of terminology, or be unusable for practical purposes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <h3>Working with Feedback</h3>
+        <p>For fields scoring below 7, the tool shows the judge's feedback with three options:</p>
+        <ul>
+          <li><strong>✓ Accept Current</strong> — Accept the value as-is (sets score to 10)</li>
+          <li><strong>♻️ Regenerate</strong> — Regenerate the field using the feedback (you can edit the feedback first)</li>
+          <li><strong>✕ Dismiss</strong> — Hide the feedback panel without changing the value</li>
+        </ul>
+        
+        <div style="margin-top: 3rem; text-align: center;">
+          <a href="#" class="btn btn-primary" onclick="App.showPage('tool'); return false;">
+            Open the Tool →
+          </a>
+        </div>
+      </section>
+      
+      <!-- Footer -->
+      <footer class="site-footer">
+        <p>
+          Built by <a href="https://www.linkedin.com/in/aakashsharma8a6888131/" target="_blank">Aakash Sharma</a> · 
+          <a href="https://github.com/aak105/Dataset-Metadata-Enricher" target="_blank">GitHub</a> · 
+          MIT License
+        </p>
+      </footer>
+    `;
+  };
+  
+  const renderToolPage = () => {
+    return `
+      <section class="tool-section">
+        <div class="app-container">
+          <div id="app">
+            <!-- Tool renders here -->
+          </div>
+        </div>
+      </section>
+      
+      <!-- Footer -->
+      <footer class="site-footer">
+        <p>
+          Built by <a href="https://www.linkedin.com/in/aakashsharma8a6888131/" target="_blank">Aakash Sharma</a> · 
+          <a href="https://github.com/aak105/Dataset-Metadata-Enricher" target="_blank">GitHub</a> · 
+          MIT License
+        </p>
+      </footer>
+    `;
+  };
+  
+  const renderPage = () => {
+    const container = document.getElementById('page-container');
+    
+    // Update nav active states
+    document.querySelectorAll('.site-nav-link').forEach(link => {
+      link.classList.remove('active');
+    });
+    
+    if (currentPage === 'home') {
+      container.innerHTML = renderHomePage();
+      document.querySelector('.site-nav-link[onclick*="home"]')?.classList.add('active');
+    } else if (currentPage === 'guide') {
+      container.innerHTML = renderGuidePage();
+      document.querySelector('.site-nav-link[onclick*="guide"]')?.classList.add('active');
+    } else if (currentPage === 'tool') {
+      container.innerHTML = renderToolPage();
+      // Now render the actual tool inside #app
+      render();
+    }
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+  };
+
   // ============================================
   // STATE MANAGEMENT
   // ============================================
@@ -625,6 +1871,21 @@ const App = (() => {
           ],
           endpoint: 'https://api.perplexity.ai/chat/completions',
           webSearch: true
+        },
+        custom: {
+          name: 'Custom / Local Model',
+          models: [],  // User adds their own
+          endpoint: '',  // User specifies
+          isCustom: true,
+          // Custom provider settings
+          customConfig: {
+            endpoint: 'http://localhost:11434/v1/chat/completions',  // Default to Ollama
+            modelName: 'llama3',
+            apiKey: '',  // Optional for local models
+            apiFormat: 'openai',  // 'openai' or 'anthropic' compatible
+            maxTokens: 4096,
+            temperature: 0.3
+          }
         }
       },
       // OpenMetadata Integration
@@ -639,6 +1900,12 @@ const App = (() => {
         enabled: false
       }
     },
+    
+    // Custom Schemas Storage (user-created presets)
+    customSchemas: {},  // { 'My Schema Name': [...fields], 'Another Schema': [...fields] }
+    
+    // Default Schema (user's preferred default)
+    defaultSchema: null,  // If set, this loads instead of hardcoded default
     
     // Metadata Schema Definition
     schema: [
@@ -687,7 +1954,9 @@ const App = (() => {
       const toSave = {
         settings: { ...state.settings, apiKey: '' }, // Never persist API key
         schema: state.schema,
-        datasets: state.datasets
+        datasets: state.datasets,
+        customSchemas: state.customSchemas,  // Save custom schemas
+        defaultSchema: state.defaultSchema    // Save default schema
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch (e) {
@@ -711,6 +1980,14 @@ const App = (() => {
         }
         if (parsed.datasets) {
           state.datasets = parsed.datasets;
+        }
+        // Load custom schemas
+        if (parsed.customSchemas) {
+          state.customSchemas = parsed.customSchemas;
+        }
+        // Load default schema
+        if (parsed.defaultSchema) {
+          state.defaultSchema = parsed.defaultSchema;
         }
       }
     } catch (e) {
@@ -810,7 +2087,8 @@ const App = (() => {
   // ============================================
   
   /**
-   * Compute statistics for a dataset
+   * Compute comprehensive statistics for a dataset
+   * Scans FULL data for accurate metadata inference
    */
   const computeStats = (data) => {
     if (!data || !data.rows || data.rows.length === 0) {
@@ -820,30 +2098,112 @@ const App = (() => {
     const stats = {
       rowCount: data.rows.length,
       colCount: data.headers.length,
-      columns: []
+      columns: [],
+      // Summary fields for LLM context
+      timeRange: null,       // { min: '2010', max: '2023' }
+      geographicValues: [],  // All unique geographic values found
+      allYears: [],          // All years found in data
+      categorySummary: {}    // { columnName: [all unique values] }
     };
     
+    // Patterns for detection
+    const yearPattern = /^(19|20)\d{2}$/;
+    const datePattern = /^\d{4}[-/]\d{2}[-/]\d{2}|^\d{2}[-/]\d{2}[-/]\d{4}/;
+    const geoKeywords = ['state', 'district', 'country', 'region', 'city', 'village', 'block', 'location', 'place', 'area', 'zone', 'tehsil', 'taluk', 'mandal', 'province'];
+    const yearKeywords = ['year', 'yr', 'date', 'period', 'time', 'fiscal', 'fy', 'ay'];
+    
+    const allYearsFound = new Set();
+    const allGeoValues = new Set();
+    
     data.headers.forEach((header, colIndex) => {
+      const headerLower = header.toLowerCase();
       const values = data.rows.map(row => row[colIndex] || '');
       const nonEmpty = values.filter(v => v && String(v).trim());
-      const unique = [...new Set(nonEmpty)];
+      const unique = [...new Set(nonEmpty.map(v => String(v).trim()))];
       const numeric = nonEmpty.filter(v => !isNaN(parseFloat(v)));
       
+      // Detect if column contains years
+      const years = unique.filter(v => yearPattern.test(String(v).trim()));
+      const isYearColumn = years.length > unique.length * 0.5 || 
+                          yearKeywords.some(k => headerLower.includes(k));
+      
       // Detect date patterns
-      const datePattern = /^\d{4}[-/]\d{2}[-/]\d{2}|^\d{2}[-/]\d{2}[-/]\d{4}/;
       const dates = nonEmpty.filter(v => datePattern.test(String(v)));
+      const isDateColumn = dates.length > nonEmpty.length * 0.5;
+      
+      // Detect geographic columns
+      const isGeoColumn = geoKeywords.some(k => headerLower.includes(k));
+      
+      // Detect if it's a categorical column (low cardinality relative to rows)
+      const isCategorical = unique.length <= 100 && unique.length < data.rows.length * 0.5;
+      
+      // Collect years from year columns
+      if (isYearColumn) {
+        years.forEach(y => allYearsFound.add(String(y).trim()));
+      }
+      
+      // Extract years from date columns
+      if (isDateColumn) {
+        dates.forEach(d => {
+          const match = String(d).match(/(19|20)\d{2}/);
+          if (match) allYearsFound.add(match[0]);
+        });
+      }
+      
+      // Collect geographic values
+      if (isGeoColumn) {
+        unique.forEach(v => {
+          if (v && v.length > 1 && v.length < 100) {
+            allGeoValues.add(String(v).trim());
+          }
+        });
+      }
+      
+      // Store category summary for categorical columns
+      if (isCategorical && unique.length > 0) {
+        stats.categorySummary[header] = unique;
+      }
+      
+      // Compute numeric stats
+      let min = null, max = null, hasDecimals = false;
+      if (numeric.length > 0) {
+        const numericValues = numeric.map(v => parseFloat(v));
+        min = Math.min(...numericValues);
+        max = Math.max(...numericValues);
+        hasDecimals = numericValues.some(v => v % 1 !== 0);
+      }
       
       stats.columns.push({
         name: header,
         fillRate: Math.round((nonEmpty.length / values.length) * 100),
         uniqueCount: unique.length,
+        totalCount: values.length,
         isNumeric: numeric.length > nonEmpty.length * 0.8,
-        isDate: dates.length > nonEmpty.length * 0.8,
+        isDate: isDateColumn,
+        isYear: isYearColumn,
+        isGeographic: isGeoColumn,
+        isCategorical: isCategorical,
+        hasDecimals: hasDecimals,
         sample: unique.slice(0, 5),
-        min: numeric.length > 0 ? Math.min(...numeric.map(parseFloat)) : null,
-        max: numeric.length > 0 ? Math.max(...numeric.map(parseFloat)) : null
+        allValues: isCategorical ? unique : null,  // Full list for categorical
+        min: min,
+        max: max
       });
     });
+    
+    // Compile time range from all years found
+    const yearsArray = [...allYearsFound].map(y => parseInt(y)).filter(y => !isNaN(y)).sort((a, b) => a - b);
+    if (yearsArray.length > 0) {
+      stats.timeRange = {
+        min: yearsArray[0],
+        max: yearsArray[yearsArray.length - 1],
+        years: yearsArray
+      };
+      stats.allYears = yearsArray;
+    }
+    
+    // Compile geographic values
+    stats.geographicValues = [...allGeoValues].sort();
     
     return stats;
   };
@@ -1301,6 +2661,43 @@ const App = (() => {
           return_citations: true
         };
         break;
+      
+      case 'custom':
+        // Custom/Local model configuration
+        const customConfig = providerConfig.customConfig;
+        endpoint = customConfig.endpoint;
+        
+        // Build headers based on format
+        headers = { 'Content-Type': 'application/json' };
+        
+        // Add API key if provided (optional for local models)
+        if (apiKey) {
+          if (customConfig.apiFormat === 'anthropic') {
+            headers['x-api-key'] = apiKey;
+            headers['anthropic-version'] = '2023-06-01';
+          } else {
+            headers['Authorization'] = `Bearer ${apiKey}`;
+          }
+        }
+        
+        // Build body based on format
+        if (customConfig.apiFormat === 'anthropic') {
+          body = {
+            model: customConfig.modelName,
+            max_tokens: customConfig.maxTokens || 4096,
+            temperature: customConfig.temperature ?? 0.3,
+            messages: [{ role: 'user', content: prompt }]
+          };
+        } else {
+          // OpenAI-compatible format (default for most local servers)
+          body = {
+            model: customConfig.modelName,
+            max_tokens: customConfig.maxTokens || 4096,
+            temperature: customConfig.temperature ?? 0.3,
+            messages: [{ role: 'user', content: prompt }]
+          };
+        }
+        break;
         
       default:
         throw new Error(`Unknown provider: ${provider}`);
@@ -1345,8 +2742,133 @@ const App = (() => {
         return data.output_text || '';
       case 'google':
         return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      case 'custom':
+        // Handle both OpenAI and Anthropic compatible responses
+        const customConfig = state.settings.providers.custom.customConfig;
+        if (customConfig.apiFormat === 'anthropic') {
+          return data.content?.[0]?.text || '';
+        } else {
+          // OpenAI-compatible format (Ollama, LM Studio, vLLM, etc.)
+          return data.choices?.[0]?.message?.content || '';
+        }
       default:
         return '';
+    }
+  };
+  
+  /**
+   * Judge Agent: Score metadata quality using rubric
+   * Returns: { fieldName: { score: 0-10, feedback: "..." }, ... }
+   */
+  const judgeMetadataQuality = async (dataset, fieldsToJudge = null) => {
+    const metadata = dataset.metadata || {};
+    const fields = fieldsToJudge || Object.keys(metadata).filter(k => metadata[k]);
+    
+    if (fields.length === 0) {
+      return {};
+    }
+    
+    const fieldsList = fields.map(f => `- **${f}**: "${metadata[f]}"`).join('\n');
+    
+    const judgePrompt = `You are a strict metadata quality judge. Your task is to evaluate metadata values for accuracy, clarity, precision, and usefulness.
+
+## Quality Rubric (0-10 scale)
+
+**9-10 (Excellent):** Clear, precise, contextually relevant. Focused and specific, avoiding unnecessary breadth. Highly usable and aligned with standards.
+
+**7-8 (Good):** Mostly clear and accurate, contextually relevant and specific. Minor issues in precision or technical accuracy. Remains usable and aligned with standards.
+
+**5-6 (Satisfactory):** Generally understandable but may lack precision or specificity. May include some broad statements, reducing effectiveness. Generally relevant and technically accurate.
+
+**3-4 (Needs Improvement):** Lacks clarity, specificity, or relevance. May be broad, general, or technically inaccurate. Limited usability and alignment with standards.
+
+**0-2 (Poor):** Unclear, overly broad, or irrelevant to context. May contain significant inaccuracies, misuse of terminology, or be unusable for practical purposes.
+
+## Dataset Context
+
+**File name:** ${dataset.name}
+**Columns:** ${dataset.data?.headers?.slice(0, 15).join(', ') || 'Unknown'}
+**Row count:** ${dataset.data?.rows?.length || 0}
+${dataset.metadata?.['Source URL'] ? `**Source URL:** ${dataset.metadata['Source URL']}` : ''}
+
+## Metadata to Evaluate
+
+${fieldsList}
+
+## Task
+
+For EACH field above, provide:
+1. A score from 0-10 based on the rubric
+2. Brief feedback explaining the score and how to improve (if score < 9)
+
+Return ONLY valid JSON in this exact format:
+{
+  "Field Name 1": { "score": 8, "feedback": "Good clarity but could specify the exact year range." },
+  "Field Name 2": { "score": 5, "feedback": "Too vague. Add specific geographic regions and data variables." }
+}
+
+Be strict but fair. Most fields should score 5-8. Only truly excellent fields get 9-10. Only unusable fields get below 3.
+Return ONLY the JSON object, no markdown or explanation.`;
+
+    try {
+      const responseText = await callLLM(judgePrompt);
+      
+      // Extract JSON from response
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('Could not parse Judge response as JSON');
+      }
+      
+      const scores = JSON.parse(jsonMatch[0]);
+      return scores;
+      
+    } catch (error) {
+      console.error('Judge error:', error);
+      return {};
+    }
+  };
+  
+  /**
+   * Regenerate a single field with feedback
+   */
+  const regenerateFieldWithFeedback = async (dataset, fieldName, feedback) => {
+    const field = state.schema.find(f => f.name === fieldName);
+    if (!field) return null;
+    
+    const currentValue = dataset.metadata?.[fieldName] || '';
+    const quality = dataset.quality?.[fieldName] || {};
+    
+    // Check max attempts
+    if ((quality.attempts || 0) >= 3) {
+      showToast(`Maximum attempts (3) reached for "${fieldName}"`, 'warning');
+      return null;
+    }
+    
+    const regeneratePrompt = `You are a data cataloger improving a metadata field based on feedback.
+
+## Dataset Context
+**File name:** ${dataset.name}
+**Columns:** ${dataset.data?.headers?.slice(0, 15).join(', ') || 'Unknown'}
+**Sample data:** ${dataset.data?.rows?.slice(0, 3).map(r => r.slice(0, 8).join(' | ')).join('\n') || 'None'}
+${dataset.metadata?.['Source URL'] ? `**Source URL:** ${dataset.metadata['Source URL']}` : ''}
+
+## Field to Improve
+**Field name:** ${fieldName}
+**Current value:** "${currentValue}"
+**Quality feedback:** ${feedback}
+
+## Task
+Generate an IMPROVED value for this field that addresses the feedback.
+Be specific, precise, and accurate. Use the dataset context to provide a better value.
+
+Return ONLY the improved value as a plain string (not JSON). No quotes, no explanation.`;
+
+    try {
+      const improvedValue = await callLLM(regeneratePrompt);
+      return improvedValue.trim().replace(/^["']|["']$/g, ''); // Remove any surrounding quotes
+    } catch (error) {
+      console.error('Regeneration error:', error);
+      return null;
     }
   };
   
@@ -1354,7 +2876,13 @@ const App = (() => {
    * Augment dataset metadata using LLM
    */
   const augmentWithLLM = async (dataset) => {
-    if (!state.settings.apiKey) {
+    // For custom provider, check endpoint instead of API key
+    if (state.settings.provider === 'custom') {
+      if (!state.settings.providers.custom.customConfig.endpoint) {
+        showToast('Please configure the API endpoint in Settings', 'error');
+        return;
+      }
+    } else if (!state.settings.apiKey) {
       showToast('Please configure your API key in Settings', 'error');
       return;
     }
@@ -1407,6 +2935,55 @@ const App = (() => {
       const isWebSearch = state.settings.provider === 'perplexity' || state.settings.provider === 'openai_search';
       const hasGoogleResults = searchResults && searchResults.length > 0;
       
+      // Compute comprehensive stats from FULL dataset
+      const stats = dataset.data ? computeStats(dataset.data) : null;
+      
+      // Build detailed statistics summary for LLM
+      let statsSection = '';
+      if (stats) {
+        const statsParts = [];
+        
+        // Time range (computed from full data)
+        if (stats.timeRange) {
+          statsParts.push(`**Time Period (from full data scan):** ${stats.timeRange.min} to ${stats.timeRange.max}`);
+          if (stats.allYears.length <= 20) {
+            statsParts.push(`**All Years Present:** ${stats.allYears.join(', ')}`);
+          } else {
+            statsParts.push(`**Years Covered:** ${stats.allYears.length} distinct years`);
+          }
+        }
+        
+        // Geographic coverage (computed from full data)
+        if (stats.geographicValues.length > 0) {
+          if (stats.geographicValues.length <= 50) {
+            statsParts.push(`**Geographic Coverage (all ${stats.geographicValues.length} values):** ${stats.geographicValues.join(', ')}`);
+          } else {
+            statsParts.push(`**Geographic Coverage:** ${stats.geographicValues.length} unique locations including: ${stats.geographicValues.slice(0, 20).join(', ')}...`);
+          }
+        }
+        
+        // Column summaries with full unique values for categorical columns
+        const columnSummaries = stats.columns.map(col => {
+          let summary = `- **${col.name}**: ${col.uniqueCount} unique values, ${col.fillRate}% filled`;
+          if (col.isNumeric) {
+            summary += `, range: ${col.min} - ${col.max}`;
+          }
+          if (col.isYear) {
+            summary += ' [YEAR column]';
+          }
+          if (col.isGeographic) {
+            summary += ' [GEOGRAPHIC column]';
+          }
+          if (col.isCategorical && col.allValues && col.allValues.length <= 30) {
+            summary += `\n  All values: ${col.allValues.join(', ')}`;
+          }
+          return summary;
+        });
+        statsParts.push(`**Column Details (${stats.colCount} columns, ${stats.rowCount} rows):**\n${columnSummaries.join('\n')}`);
+        
+        statsSection = statsParts.join('\n\n');
+      }
+      
       const prompt = `You are a data cataloger with expertise in documenting datasets from various sources worldwide (government portals, research institutions, international organizations, private sector, etc.).
 
 ## Dataset Information
@@ -1416,7 +2993,11 @@ const App = (() => {
 **Columns (${dataset.data?.headers?.length || 0}):**
 ${dataset.data?.headers?.join(', ') || 'Unknown'}
 
-**Sample data (first ${sampleRows.length} rows):**
+## FULL DATA STATISTICS (computed from entire dataset, not just sample)
+
+${statsSection || 'No statistics available'}
+
+**Sample data (first ${sampleRows.length} rows for context):**
 ${sampleRows.map((r, i) => `Row ${i + 1}: ${r.slice(0, 10).join(' | ')}${r.length > 10 ? ' ...' : ''}`).join('\n')}
 
 ${sourceUrl ? `**Source URL:** ${sourceUrl}` : ''}
@@ -1463,10 +3044,12 @@ ${fieldsToInfer.map(f => {
 
 RULES:
 - Provide a value for every field. Avoid null unless absolutely impossible to infer.
+- IMPORTANT: Use the FULL DATA STATISTICS section above for accurate temporal and geographic coverage - these are computed from the ENTIRE dataset, not just samples.
+- For temporal coverage, use the exact time range from the statistics (e.g., if stats show 2015-2023, use "2015-2023").
+- For geographic coverage, use the geographic values from the statistics section.
 - Use clues from URL domain, page content, column names, and data patterns.
 ${hasGoogleResults ? '- USE THE WEB SEARCH RESULTS above to find accurate license, methodology, and source information.' : ''}
 ${isWebSearch ? '- Prioritize information from your web search results for accuracy.' : ''}
-- For temporal coverage, use clear date ranges (e.g., "2015-2023", "Q1 2020 - Q4 2022").
 - For methodology, describe data collection approach based on data type.
 - Apply your knowledge of common data sources, licensing standards, and metadata practices.
 - Return ONLY valid JSON. No markdown, no explanation.`;
@@ -1498,8 +3081,51 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
       dataset.augmented = true;
       dataset.augmentedAt = new Date().toISOString();
       
-      state.augmentLog.push('✅ Metadata augmented successfully!');
-      showToast('Metadata augmented successfully!', 'success');
+      state.augmentLog.push('✅ Metadata generated!');
+      render();
+      
+      // ========================================
+      // JUDGE AGENT: Auto-score quality
+      // ========================================
+      state.augmentLog.push('⚖️ Judging metadata quality...');
+      render();
+      
+      try {
+        const qualityScores = await judgeMetadataQuality(dataset);
+        
+        // Store quality scores on dataset
+        dataset.quality = dataset.quality || {};
+        Object.entries(qualityScores).forEach(([fieldName, result]) => {
+          dataset.quality[fieldName] = {
+            score: result.score,
+            feedback: result.feedback,
+            attempts: 1,
+            judgedAt: new Date().toISOString()
+          };
+        });
+        
+        // Calculate overall score
+        const scores = Object.values(qualityScores).map(q => q.score).filter(s => typeof s === 'number');
+        const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : 'N/A';
+        
+        state.augmentLog.push(`📊 Quality Score: ${avgScore}/10 (${scores.length} fields judged)`);
+        
+        // Count by category
+        const excellent = scores.filter(s => s >= 9).length;
+        const good = scores.filter(s => s >= 7 && s < 9).length;
+        const satisfactory = scores.filter(s => s >= 5 && s < 7).length;
+        const needsWork = scores.filter(s => s < 5).length;
+        
+        if (needsWork > 0) {
+          state.augmentLog.push(`⚠️ ${needsWork} field(s) need improvement`);
+        }
+        
+      } catch (judgeError) {
+        console.warn('Judge scoring failed:', judgeError);
+        state.augmentLog.push('⚠️ Quality scoring skipped (judge error)');
+      }
+      
+      showToast('Metadata augmented and scored!', 'success');
       saveState();
       
     } catch (error) {
@@ -1512,61 +3138,349 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
   };
 
   // ============================================
-  // SCHEMA PRESETS
+  // SCHEMA PRESETS - World Bank Metadata Standards
+  // Based on: https://github.com/worldbank/metadata-schemas
   // ============================================
   
   const schemaPresets = {
-    government: [
-      { id: '1', name: 'Dataset Name', type: 'text', required: true, aiInfer: true },
-      { id: '2', name: 'Source Ministry/Department', type: 'text', required: true, aiInfer: true },
-      { id: '3', name: 'Source URL', type: 'url', required: true, aiInfer: false },
-      { id: '4', name: 'Portal', type: 'enum', options: ['data.gov.in', 'NITI Aayog', 'RBI', 'MoSPI', 'Census India', 'NHP', 'Other'], required: false, aiInfer: true },
-      { id: '5', name: 'Geographic Level', type: 'enum', options: ['National', 'State', 'District', 'Sub-district', 'Block', 'Village', 'Ward'], required: true, aiInfer: true },
-      { id: '6', name: 'States Covered', type: 'text', required: false, aiInfer: true },
-      { id: '7', name: 'Temporal Coverage', type: 'text', required: false, aiInfer: true },
-      { id: '8', name: 'Update Frequency', type: 'enum', options: ['Real-time', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annual', 'Decennial', 'One-time'], required: false, aiInfer: true },
-      { id: '9', name: 'Collection Method', type: 'longtext', required: false, aiInfer: true },
-      { id: '10', name: 'Related Schemes/Programs', type: 'tags', required: false, aiInfer: true },
-      { id: '11', name: 'Variable Definitions', type: 'longtext', required: false, aiInfer: true },
-      { id: '12', name: 'Known Limitations', type: 'longtext', required: false, aiInfer: true },
-      { id: '13', name: 'Data Format', type: 'enum', options: ['CSV', 'Excel', 'JSON', 'XML', 'API', 'PDF'], required: false, aiInfer: true },
-      { id: '14', name: 'License', type: 'text', required: false, aiInfer: true },
-      { id: '15', name: 'Access Date', type: 'date', required: false, aiInfer: false },
-      { id: '16', name: 'Tags', type: 'tags', required: false, aiInfer: true }
+    
+    // ============================================
+    // 1. MICRODATA (DDI Codebook 2.5)
+    // For: Surveys, censuses, unit-level data
+    // ============================================
+    microdata: [
+      // -- Title Statement --
+      { id: '1', name: 'idno', type: 'text', required: true, aiInfer: true, description: 'Unique dataset identifier (e.g., IND-NSSO-68-2011)' },
+      { id: '2', name: 'title', type: 'text', required: true, aiInfer: true, description: 'Official survey/study title' },
+      { id: '3', name: 'subtitle', type: 'text', required: false, aiInfer: true, description: 'Subtitle or short description' },
+      { id: '4', name: 'alternate_title', type: 'text', required: false, aiInfer: true, description: 'Acronym or abbreviation (e.g., NSSO 68th Round)' },
+      
+      // -- Authoring & Production --
+      { id: '5', name: 'authoring_entity', type: 'text', required: true, aiInfer: true, description: 'Primary investigating agency' },
+      { id: '6', name: 'producers', type: 'text', required: false, aiInfer: true, description: 'Organizations that produced the data' },
+      { id: '7', name: 'funding_agencies', type: 'text', required: false, aiInfer: true, description: 'Funding sources/sponsors' },
+      { id: '8', name: 'distributors', type: 'text', required: false, aiInfer: true, description: 'Organizations distributing the data' },
+      
+      // -- Study Scope --
+      { id: '9', name: 'abstract', type: 'longtext', required: true, aiInfer: true, description: 'Summary of purposes, objectives and content' },
+      { id: '10', name: 'kind_of_data', type: 'enum', options: ['Sample survey data', 'Census/enumeration data', 'Administrative records', 'Aggregate data', 'Event/transaction data', 'Observation data'], required: true, aiInfer: true, description: 'Broad classification of data type' },
+      { id: '11', name: 'unit_of_analysis', type: 'enum', options: ['Individual', 'Household', 'Family', 'Enterprise', 'Establishment', 'Geographic unit', 'Event/transaction', 'Other'], required: true, aiInfer: true, description: 'Basic unit of analysis or observation' },
+      
+      // -- Geographic Coverage --
+      { id: '12', name: 'nations', type: 'tags', required: true, aiInfer: true, description: 'Countries covered (ISO codes)' },
+      { id: '13', name: 'geog_coverage', type: 'text', required: true, aiInfer: true, description: 'Geographic scope (e.g., All India, Urban only)' },
+      { id: '14', name: 'geog_unit', type: 'enum', options: ['National', 'State/Province', 'District', 'Sub-district', 'Village/Town', 'Enumeration block', 'GPS coordinates'], required: false, aiInfer: true, description: 'Lowest level of geographic aggregation' },
+      
+      // -- Temporal Coverage --
+      { id: '15', name: 'coll_dates_start', type: 'date', required: true, aiInfer: true, description: 'Data collection start date' },
+      { id: '16', name: 'coll_dates_end', type: 'date', required: false, aiInfer: true, description: 'Data collection end date' },
+      { id: '17', name: 'time_periods', type: 'text', required: false, aiInfer: true, description: 'Reference period for data (e.g., July 2011-June 2012)' },
+      
+      // -- Universe & Sampling --
+      { id: '18', name: 'universe', type: 'longtext', required: true, aiInfer: true, description: 'Population of interest (who was surveyed)' },
+      { id: '19', name: 'sampling_procedure', type: 'longtext', required: true, aiInfer: true, description: 'Sample design and selection method' },
+      { id: '20', name: 'coll_mode', type: 'enum', options: ['Face-to-face (PAPI)', 'CAPI', 'CATI', 'Online/Web', 'Mail', 'Mixed mode', 'Other'], required: false, aiInfer: true, description: 'Mode of data collection' },
+      { id: '21', name: 'research_instrument', type: 'text', required: false, aiInfer: true, description: 'Type of questionnaire/instrument used' },
+      { id: '22', name: 'sampling_deviation', type: 'longtext', required: false, aiInfer: true, description: 'Deviations from planned sample design' },
+      
+      // -- Data Processing --
+      { id: '23', name: 'data_editing', type: 'longtext', required: false, aiInfer: true, description: 'Editing and cleaning procedures' },
+      { id: '24', name: 'weight', type: 'text', required: false, aiInfer: true, description: 'Weighting variable name and description' },
+      
+      // -- Data Access --
+      { id: '25', name: 'access_policy', type: 'enum', options: ['Open access', 'Public use', 'Licensed', 'Data enclave', 'Remote access', 'No access'], required: true, aiInfer: true, description: 'Data access conditions' },
+      { id: '26', name: 'cit_req', type: 'longtext', required: false, aiInfer: true, description: 'How to cite this dataset' },
+      { id: '27', name: 'contact', type: 'text', required: false, aiInfer: true, description: 'Contact person/organization for inquiries' },
+      
+      // -- Topics & Keywords --
+      { id: '28', name: 'topics', type: 'tags', required: true, aiInfer: true, description: 'Topic classifications' },
+      { id: '29', name: 'keywords', type: 'tags', required: true, aiInfer: true, description: 'Keywords for discovery' },
+      
+      // -- Related Materials --
+      { id: '30', name: 'related_publications', type: 'longtext', required: false, aiInfer: true, description: 'Related reports, papers, documentation' },
+      
+      // -- Source --
+      { id: '31', name: 'source_url', type: 'url', required: false, aiInfer: false, description: 'URL to original data source' }
     ],
     
-    survey: [
-      { id: '1', name: 'Survey Name', type: 'text', required: true, aiInfer: true },
-      { id: '2', name: 'Conducting Agency', type: 'text', required: true, aiInfer: true },
-      { id: '3', name: 'Survey Round/Wave', type: 'text', required: false, aiInfer: true },
-      { id: '4', name: 'Source URL', type: 'url', required: true, aiInfer: false },
-      { id: '5', name: 'Sample Size', type: 'number', required: false, aiInfer: true },
-      { id: '6', name: 'Sampling Method', type: 'longtext', required: false, aiInfer: true },
-      { id: '7', name: 'Geographic Coverage', type: 'enum', options: ['National', 'State', 'District', 'Urban only', 'Rural only', 'Both'], required: true, aiInfer: true },
-      { id: '8', name: 'Reference Period', type: 'text', required: false, aiInfer: true },
-      { id: '9', name: 'Unit of Observation', type: 'enum', options: ['Individual', 'Household', 'Enterprise', 'Village', 'Other'], required: false, aiInfer: true },
-      { id: '10', name: 'Key Variables', type: 'tags', required: false, aiInfer: true },
-      { id: '11', name: 'Questionnaire Link', type: 'url', required: false, aiInfer: false },
-      { id: '12', name: 'Technical Report Link', type: 'url', required: false, aiInfer: false },
-      { id: '13', name: 'Methodology Notes', type: 'longtext', required: false, aiInfer: true },
-      { id: '14', name: 'Comparability Notes', type: 'longtext', required: false, aiInfer: true },
-      { id: '15', name: 'Citation', type: 'longtext', required: false, aiInfer: true }
+    // ============================================
+    // 2. DOCUMENT
+    // For: Reports, publications, PDFs
+    // ============================================
+    document: [
+      // -- Title & Identification --
+      { id: '1', name: 'idno', type: 'text', required: true, aiInfer: true, description: 'Unique document identifier' },
+      { id: '2', name: 'title', type: 'text', required: true, aiInfer: true, description: 'Document title' },
+      { id: '3', name: 'subtitle', type: 'text', required: false, aiInfer: true, description: 'Subtitle' },
+      { id: '4', name: 'alternate_title', type: 'text', required: false, aiInfer: true, description: 'Abbreviation or acronym' },
+      { id: '5', name: 'translated_title', type: 'text', required: false, aiInfer: true, description: 'Title in other language' },
+      
+      // -- Authors & Contributors --
+      { id: '6', name: 'authors', type: 'longtext', required: true, aiInfer: true, description: 'Authors (Last name, First name)' },
+      { id: '7', name: 'editors', type: 'text', required: false, aiInfer: true, description: 'Editors' },
+      { id: '8', name: 'contributors', type: 'text', required: false, aiInfer: true, description: 'Other contributors' },
+      
+      // -- Publication Info --
+      { id: '9', name: 'date_published', type: 'date', required: true, aiInfer: true, description: 'Publication date' },
+      { id: '10', name: 'date_created', type: 'date', required: false, aiInfer: true, description: 'Date created/written' },
+      { id: '11', name: 'publishers', type: 'text', required: true, aiInfer: true, description: 'Publisher name' },
+      { id: '12', name: 'publisher_place', type: 'text', required: false, aiInfer: true, description: 'Place of publication' },
+      
+      // -- Document Type & Format --
+      { id: '13', name: 'type', type: 'enum', options: ['Article', 'Book', 'Book chapter', 'Working paper', 'Technical report', 'Conference paper', 'Thesis', 'Manual', 'Policy brief', 'Dataset documentation', 'Questionnaire', 'Other'], required: true, aiInfer: true, description: 'Document type' },
+      { id: '14', name: 'format', type: 'enum', options: ['PDF', 'Word', 'HTML', 'ePub', 'Print', 'Other'], required: false, aiInfer: true, description: 'File format' },
+      { id: '15', name: 'pages', type: 'text', required: false, aiInfer: true, description: 'Number of pages or page range' },
+      { id: '16', name: 'languages', type: 'tags', required: true, aiInfer: true, description: 'Languages (ISO codes)' },
+      
+      // -- Content Description --
+      { id: '17', name: 'description', type: 'longtext', required: true, aiInfer: true, description: 'Abstract or summary' },
+      { id: '18', name: 'toc', type: 'longtext', required: false, aiInfer: true, description: 'Table of contents' },
+      { id: '19', name: 'scope', type: 'longtext', required: false, aiInfer: true, description: 'Scope and coverage' },
+      
+      // -- Subject & Classification --
+      { id: '20', name: 'topics', type: 'tags', required: true, aiInfer: true, description: 'Topic classifications' },
+      { id: '21', name: 'keywords', type: 'tags', required: true, aiInfer: true, description: 'Keywords' },
+      { id: '22', name: 'disciplines', type: 'tags', required: false, aiInfer: true, description: 'Academic disciplines' },
+      
+      // -- Geographic & Temporal --
+      { id: '23', name: 'countries', type: 'tags', required: false, aiInfer: true, description: 'Countries covered' },
+      { id: '24', name: 'geographic_coverage', type: 'text', required: false, aiInfer: true, description: 'Geographic scope' },
+      { id: '25', name: 'temporal_coverage', type: 'text', required: false, aiInfer: true, description: 'Time period covered' },
+      
+      // -- Identifiers & Links --
+      { id: '26', name: 'doi', type: 'text', required: false, aiInfer: true, description: 'Digital Object Identifier' },
+      { id: '27', name: 'isbn', type: 'text', required: false, aiInfer: true, description: 'ISBN' },
+      { id: '28', name: 'issn', type: 'text', required: false, aiInfer: true, description: 'ISSN' },
+      { id: '29', name: 'url', type: 'url', required: false, aiInfer: false, description: 'URL to document' },
+      
+      // -- Rights & Access --
+      { id: '30', name: 'rights', type: 'text', required: false, aiInfer: true, description: 'Copyright/license information' },
+      { id: '31', name: 'access_restrictions', type: 'text', required: false, aiInfer: true, description: 'Access restrictions' },
+      
+      // -- Data Sources --
+      { id: '32', name: 'data_sources', type: 'longtext', required: false, aiInfer: true, description: 'Data sources used in the document' },
+      
+      // -- Citation --
+      { id: '33', name: 'bibliographic_citation', type: 'longtext', required: false, aiInfer: true, description: 'Recommended citation' }
     ],
     
+    // ============================================
+    // 3. TIMESERIES
+    // For: Indicators, time-based data
+    // ============================================
     timeseries: [
-      { id: '1', name: 'Dataset Name', type: 'text', required: true, aiInfer: true },
-      { id: '2', name: 'Source', type: 'text', required: true, aiInfer: true },
-      { id: '3', name: 'Source URL', type: 'url', required: true, aiInfer: false },
-      { id: '4', name: 'Frequency', type: 'enum', options: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annual'], required: true, aiInfer: true },
-      { id: '5', name: 'Start Date', type: 'text', required: false, aiInfer: true },
-      { id: '6', name: 'End Date', type: 'text', required: false, aiInfer: true },
-      { id: '7', name: 'Geographic Coverage', type: 'text', required: false, aiInfer: true },
-      { id: '8', name: 'Variables', type: 'tags', required: false, aiInfer: true },
-      { id: '9', name: 'Units', type: 'text', required: false, aiInfer: true },
-      { id: '10', name: 'Seasonal Adjustment', type: 'enum', options: ['Yes', 'No', 'Both available'], required: false, aiInfer: true },
-      { id: '11', name: 'Revision Policy', type: 'longtext', required: false, aiInfer: true },
-      { id: '12', name: 'API Available', type: 'boolean', required: false, aiInfer: true },
-      { id: '13', name: 'Notes', type: 'longtext', required: false, aiInfer: true }
+      // -- Series Identification --
+      { id: '1', name: 'idno', type: 'text', required: true, aiInfer: true, description: 'Unique series identifier' },
+      { id: '2', name: 'name', type: 'text', required: true, aiInfer: true, description: 'Series name' },
+      { id: '3', name: 'display_name', type: 'text', required: false, aiInfer: true, description: 'Display name for UI' },
+      { id: '4', name: 'aliases', type: 'tags', required: false, aiInfer: true, description: 'Alternative names' },
+      
+      // -- Database Info --
+      { id: '5', name: 'database_name', type: 'text', required: true, aiInfer: true, description: 'Database name (e.g., WDI, DBIE)' },
+      { id: '6', name: 'database_id', type: 'text', required: false, aiInfer: true, description: 'Database identifier' },
+      
+      // -- Authoring --
+      { id: '7', name: 'authoring_entity', type: 'text', required: true, aiInfer: true, description: 'Organization responsible for the series' },
+      { id: '8', name: 'contributors', type: 'text', required: false, aiInfer: true, description: 'Contributing organizations' },
+      
+      // -- Series Definition --
+      { id: '9', name: 'definition_short', type: 'text', required: true, aiInfer: true, description: 'Brief definition' },
+      { id: '10', name: 'definition_long', type: 'longtext', required: false, aiInfer: true, description: 'Detailed definition and methodology' },
+      { id: '11', name: 'statistical_concept', type: 'longtext', required: false, aiInfer: true, description: 'Statistical concepts and methodology' },
+      { id: '12', name: 'relevance', type: 'longtext', required: false, aiInfer: true, description: 'Policy relevance and interpretation' },
+      
+      // -- Measurement --
+      { id: '13', name: 'unit_of_measure', type: 'text', required: true, aiInfer: true, description: 'Unit of measurement' },
+      { id: '14', name: 'base_period', type: 'text', required: false, aiInfer: true, description: 'Base period/year for indices' },
+      { id: '15', name: 'aggregation_method', type: 'enum', options: ['Sum', 'Average', 'Weighted average', 'End of period', 'Beginning of period', 'Median', 'Other'], required: false, aiInfer: true, description: 'How data is aggregated' },
+      
+      // -- Frequency & Coverage --
+      { id: '16', name: 'periodicity', type: 'enum', options: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Semi-annual', 'Annual', 'Quinquennial', 'Decennial', 'Irregular'], required: true, aiInfer: true, description: 'Data frequency' },
+      { id: '17', name: 'time_coverage_start', type: 'text', required: false, aiInfer: true, description: 'First available period' },
+      { id: '18', name: 'time_coverage_end', type: 'text', required: false, aiInfer: true, description: 'Last available period' },
+      { id: '19', name: 'geographic_coverage', type: 'tags', required: true, aiInfer: true, description: 'Countries/regions covered' },
+      { id: '20', name: 'geographic_granularity', type: 'enum', options: ['Global', 'Regional', 'National', 'Sub-national', 'City', 'Other'], required: false, aiInfer: true, description: 'Lowest geographic level' },
+      
+      // -- Dimensions & Disaggregation --
+      { id: '21', name: 'disaggregation', type: 'tags', required: false, aiInfer: true, description: 'Disaggregation dimensions (e.g., sex, age, urban/rural)' },
+      
+      // -- Data Source --
+      { id: '22', name: 'sources', type: 'longtext', required: true, aiInfer: true, description: 'Data sources' },
+      { id: '23', name: 'source_note', type: 'longtext', required: false, aiInfer: true, description: 'Additional source notes' },
+      { id: '24', name: 'source_links', type: 'text', required: false, aiInfer: true, description: 'Links to original sources' },
+      
+      // -- Classification --
+      { id: '25', name: 'topics', type: 'tags', required: true, aiInfer: true, description: 'Topic classifications' },
+      { id: '26', name: 'keywords', type: 'tags', required: true, aiInfer: true, description: 'Keywords' },
+      
+      // -- Quality & Limitations --
+      { id: '27', name: 'limitations', type: 'longtext', required: false, aiInfer: true, description: 'Data limitations and caveats' },
+      { id: '28', name: 'comparability', type: 'longtext', required: false, aiInfer: true, description: 'Cross-country/time comparability' },
+      
+      // -- Access --
+      { id: '29', name: 'license', type: 'text', required: false, aiInfer: true, description: 'License/terms of use' },
+      { id: '30', name: 'api_endpoint', type: 'url', required: false, aiInfer: false, description: 'API endpoint for data access' },
+      { id: '31', name: 'source_url', type: 'url', required: false, aiInfer: false, description: 'URL to data source' },
+      
+      // -- Related --
+      { id: '32', name: 'related_indicators', type: 'tags', required: false, aiInfer: true, description: 'Related series/indicators' },
+      
+      // -- Metadata --
+      { id: '33', name: 'date_last_update', type: 'date', required: false, aiInfer: true, description: 'Date of last update' }
+    ],
+    
+    // ============================================
+    // 4. TABLE
+    // For: Statistical tables, cross-tabulations
+    // ============================================
+    table: [
+      // -- Table Identification --
+      { id: '1', name: 'idno', type: 'text', required: true, aiInfer: true, description: 'Unique table identifier' },
+      { id: '2', name: 'table_number', type: 'text', required: false, aiInfer: true, description: 'Table number from source' },
+      { id: '3', name: 'title', type: 'text', required: true, aiInfer: true, description: 'Table title' },
+      { id: '4', name: 'subtitle', type: 'text', required: false, aiInfer: true, description: 'Table subtitle' },
+      { id: '5', name: 'alternate_title', type: 'text', required: false, aiInfer: true, description: 'Alternative title' },
+      
+      // -- Authoring --
+      { id: '6', name: 'authoring_entity', type: 'text', required: true, aiInfer: true, description: 'Organization responsible' },
+      { id: '7', name: 'contributors', type: 'text', required: false, aiInfer: true, description: 'Contributors' },
+      
+      // -- Content Description --
+      { id: '8', name: 'description', type: 'longtext', required: true, aiInfer: true, description: 'Table description' },
+      { id: '9', name: 'table_columns', type: 'longtext', required: false, aiInfer: true, description: 'Description of columns' },
+      { id: '10', name: 'table_rows', type: 'longtext', required: false, aiInfer: true, description: 'Description of rows' },
+      { id: '11', name: 'table_series', type: 'tags', required: false, aiInfer: true, description: 'Data series in the table' },
+      
+      // -- Statistics Info --
+      { id: '12', name: 'statistics', type: 'tags', required: true, aiInfer: true, description: 'Type of statistics (e.g., count, mean, percentage)' },
+      { id: '13', name: 'unit_of_measure', type: 'text', required: false, aiInfer: true, description: 'Unit of measurement' },
+      { id: '14', name: 'universe', type: 'text', required: false, aiInfer: true, description: 'Population universe' },
+      
+      // -- Classification --
+      { id: '15', name: 'data_sources', type: 'longtext', required: true, aiInfer: true, description: 'Data sources used' },
+      { id: '16', name: 'time_periods', type: 'text', required: true, aiInfer: true, description: 'Time period covered' },
+      { id: '17', name: 'geographic_coverage', type: 'text', required: true, aiInfer: true, description: 'Geographic coverage' },
+      { id: '18', name: 'geographic_granularity', type: 'enum', options: ['National', 'State', 'District', 'Sub-district', 'Village/Town', 'Other'], required: false, aiInfer: true, description: 'Geographic breakdown level' },
+      
+      // -- Source Document --
+      { id: '19', name: 'publication', type: 'text', required: false, aiInfer: true, description: 'Source publication' },
+      { id: '20', name: 'publication_date', type: 'date', required: false, aiInfer: true, description: 'Publication date' },
+      
+      // -- Topics --
+      { id: '21', name: 'topics', type: 'tags', required: true, aiInfer: true, description: 'Topic classifications' },
+      { id: '22', name: 'keywords', type: 'tags', required: true, aiInfer: true, description: 'Keywords' },
+      { id: '23', name: 'disciplines', type: 'tags', required: false, aiInfer: true, description: 'Disciplines' },
+      
+      // -- Notes --
+      { id: '24', name: 'notes', type: 'longtext', required: false, aiInfer: true, description: 'General notes' },
+      { id: '25', name: 'definitions', type: 'longtext', required: false, aiInfer: true, description: 'Definitions and methodology' },
+      
+      // -- Access --
+      { id: '26', name: 'data_formats', type: 'tags', required: false, aiInfer: true, description: 'Available formats (CSV, Excel, etc.)' },
+      { id: '27', name: 'source_url', type: 'url', required: false, aiInfer: false, description: 'URL to table' },
+      { id: '28', name: 'license', type: 'text', required: false, aiInfer: true, description: 'License' },
+      
+      // -- Related --
+      { id: '29', name: 'related_tables', type: 'tags', required: false, aiInfer: true, description: 'Related tables' },
+      { id: '30', name: 'citation', type: 'longtext', required: false, aiInfer: true, description: 'Recommended citation' }
+    ],
+    
+    // ============================================
+    // 5. GEOSPATIAL (ISO 19115/19139)
+    // For: GIS data, maps, satellite imagery
+    // ============================================
+    geospatial: [
+      // -- Identification --
+      { id: '1', name: 'idno', type: 'text', required: true, aiInfer: true, description: 'Unique dataset identifier' },
+      { id: '2', name: 'title', type: 'text', required: true, aiInfer: true, description: 'Dataset title' },
+      { id: '3', name: 'alternate_title', type: 'text', required: false, aiInfer: true, description: 'Alternative title' },
+      { id: '4', name: 'date_published', type: 'date', required: true, aiInfer: true, description: 'Publication date' },
+      { id: '5', name: 'date_revised', type: 'date', required: false, aiInfer: true, description: 'Last revision date' },
+      
+      // -- Abstract & Purpose --
+      { id: '6', name: 'abstract', type: 'longtext', required: true, aiInfer: true, description: 'Brief description of the dataset' },
+      { id: '7', name: 'purpose', type: 'longtext', required: false, aiInfer: true, description: 'Purpose of the dataset' },
+      { id: '8', name: 'supplemental_information', type: 'longtext', required: false, aiInfer: true, description: 'Additional information' },
+      
+      // -- Responsible Party --
+      { id: '9', name: 'contact_organization', type: 'text', required: true, aiInfer: true, description: 'Contact organization' },
+      { id: '10', name: 'contact_person', type: 'text', required: false, aiInfer: true, description: 'Contact person' },
+      { id: '11', name: 'contact_email', type: 'text', required: false, aiInfer: true, description: 'Contact email' },
+      
+      // -- Keywords & Topics --
+      { id: '12', name: 'topic_category', type: 'enum', options: ['farming', 'biota', 'boundaries', 'climatologyMeteorologyAtmosphere', 'economy', 'elevation', 'environment', 'geoscientificInformation', 'health', 'imageryBaseMapsEarthCover', 'inlandWaters', 'location', 'oceans', 'planningCadastre', 'society', 'structure', 'transportation', 'utilitiesCommunication'], required: true, aiInfer: true, description: 'ISO topic category' },
+      { id: '13', name: 'keywords', type: 'tags', required: true, aiInfer: true, description: 'Keywords for discovery' },
+      { id: '14', name: 'place_keywords', type: 'tags', required: false, aiInfer: true, description: 'Place names' },
+      
+      // -- Spatial Extent (Bounding Box) --
+      { id: '15', name: 'bbox_west', type: 'number', required: true, aiInfer: true, description: 'West bounding coordinate (longitude)' },
+      { id: '16', name: 'bbox_east', type: 'number', required: true, aiInfer: true, description: 'East bounding coordinate (longitude)' },
+      { id: '17', name: 'bbox_south', type: 'number', required: true, aiInfer: true, description: 'South bounding coordinate (latitude)' },
+      { id: '18', name: 'bbox_north', type: 'number', required: true, aiInfer: true, description: 'North bounding coordinate (latitude)' },
+      { id: '19', name: 'geographic_description', type: 'text', required: false, aiInfer: true, description: 'Description of geographic extent' },
+      
+      // -- Temporal Extent --
+      { id: '20', name: 'temporal_coverage_start', type: 'date', required: false, aiInfer: true, description: 'Start date of data' },
+      { id: '21', name: 'temporal_coverage_end', type: 'date', required: false, aiInfer: true, description: 'End date of data' },
+      
+      // -- Spatial Reference --
+      { id: '22', name: 'reference_system', type: 'text', required: true, aiInfer: true, description: 'Coordinate reference system (e.g., WGS84, EPSG:4326)' },
+      { id: '23', name: 'projection', type: 'text', required: false, aiInfer: true, description: 'Map projection' },
+      
+      // -- Spatial Resolution --
+      { id: '24', name: 'spatial_resolution', type: 'text', required: false, aiInfer: true, description: 'Spatial resolution (e.g., 30m, 1:50000)' },
+      { id: '25', name: 'scale_denominator', type: 'number', required: false, aiInfer: true, description: 'Scale denominator for maps' },
+      
+      // -- Data Type & Format --
+      { id: '26', name: 'spatial_representation', type: 'enum', options: ['vector', 'raster', 'grid', 'point cloud', 'TIN', 'stereoModel', 'video'], required: true, aiInfer: true, description: 'Spatial representation type' },
+      { id: '27', name: 'geometry_type', type: 'enum', options: ['point', 'line', 'polygon', 'multiPoint', 'multiLine', 'multiPolygon', 'raster', 'other'], required: false, aiInfer: true, description: 'Geometry type for vector data' },
+      { id: '28', name: 'distribution_format', type: 'enum', options: ['GeoJSON', 'Shapefile', 'GeoTIFF', 'GeoPackage', 'KML/KMZ', 'WMS', 'WFS', 'NetCDF', 'CSV with coordinates', 'Other'], required: true, aiInfer: true, description: 'Data format' },
+      { id: '29', name: 'feature_count', type: 'number', required: false, aiInfer: true, description: 'Number of features' },
+      
+      // -- Data Quality --
+      { id: '30', name: 'lineage', type: 'longtext', required: false, aiInfer: true, description: 'Data lineage and processing history' },
+      { id: '31', name: 'positional_accuracy', type: 'text', required: false, aiInfer: true, description: 'Positional accuracy' },
+      { id: '32', name: 'attribute_accuracy', type: 'text', required: false, aiInfer: true, description: 'Attribute accuracy' },
+      { id: '33', name: 'completeness', type: 'text', required: false, aiInfer: true, description: 'Data completeness' },
+      
+      // -- Constraints --
+      { id: '34', name: 'access_constraints', type: 'text', required: false, aiInfer: true, description: 'Access restrictions' },
+      { id: '35', name: 'use_constraints', type: 'text', required: false, aiInfer: true, description: 'Use limitations' },
+      { id: '36', name: 'license', type: 'text', required: false, aiInfer: true, description: 'License' },
+      
+      // -- Distribution --
+      { id: '37', name: 'online_resource', type: 'url', required: false, aiInfer: false, description: 'URL to access data' },
+      { id: '38', name: 'wms_url', type: 'url', required: false, aiInfer: false, description: 'WMS service URL' },
+      { id: '39', name: 'wfs_url', type: 'url', required: false, aiInfer: false, description: 'WFS service URL' },
+      
+      // -- Maintenance --
+      { id: '40', name: 'maintenance_frequency', type: 'enum', options: ['continual', 'daily', 'weekly', 'fortnightly', 'monthly', 'quarterly', 'biannually', 'annually', 'asNeeded', 'irregular', 'notPlanned', 'unknown'], required: false, aiInfer: true, description: 'Update frequency' }
+    ],
+    
+    // ============================================
+    // 6. ASHOKA DATALAKE
+    // For: Social sector datasets in India
+    // Used by: Ashoka University Social Datalake Project
+    // ============================================
+    ashoka_datalake: [
+      { id: '1', name: 'Dataset Title', type: 'text', required: true, aiInfer: true, description: 'Official title of the dataset' },
+      { id: '2', name: 'Short Name', type: 'text', required: false, aiInfer: true, description: 'Abbreviated name or acronym' },
+      { id: '3', name: 'Description', type: 'longtext', required: true, aiInfer: true, description: 'Summary of dataset content, scope, and purpose' },
+      { id: '4', name: 'Domain/Cluster', type: 'text', required: false, aiInfer: true, description: 'Thematic domain (e.g., Health, Education, Agriculture, Livelihoods)' },
+      { id: '5', name: 'Publisher/Source', type: 'text', required: true, aiInfer: true, description: 'Organization that published or created the data' },
+      { id: '6', name: 'Source URL', type: 'url', required: false, aiInfer: false, description: 'Link to the original data source' },
+      { id: '7', name: 'Coverage (Spatial)', type: 'text', required: false, aiInfer: true, description: 'Geographic coverage (e.g., All India, State-level, District-level)' },
+      { id: '8', name: 'Coverage (Temporal)', type: 'text', required: false, aiInfer: true, description: 'Time period covered by the data' },
+      { id: '9', name: 'Frequency of Update', type: 'text', required: false, aiInfer: true, description: 'How often the data is updated (e.g., Annual, Monthly, One-time)' },
+      { id: '10', name: 'Format(s) Available', type: 'text', required: false, aiInfer: true, description: 'File formats available (e.g., CSV, Excel, API, PDF)' },
+      { id: '11', name: 'Variables/Indicators', type: 'longtext', required: false, aiInfer: true, description: 'Key variables or indicators in the dataset' },
+      { id: '12', name: 'Unit of Observation', type: 'text', required: false, aiInfer: true, description: 'Level of data (e.g., Individual, Household, Village, District, State)' },
+      { id: '13', name: 'Methodology Notes', type: 'longtext', required: false, aiInfer: true, description: 'Data collection methodology and sampling approach' },
+      { id: '14', name: 'Data Quality Notes', type: 'longtext', required: false, aiInfer: true, description: 'Known limitations, caveats, or quality issues' },
+      { id: '15', name: 'Licensing/Access', type: 'text', required: false, aiInfer: true, description: 'Access conditions and license type' },
+      { id: '16', name: 'Tags/Keywords', type: 'tags', required: false, aiInfer: true, description: 'Keywords for discovery' },
+      { id: '17', name: 'Related Datasets', type: 'text', required: false, aiInfer: true, description: 'Links to related or complementary datasets' },
+      { id: '18', name: 'Last Updated', type: 'date', required: false, aiInfer: false, description: 'When the dataset was last updated' }
     ]
   };
 
@@ -1613,6 +3527,72 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
           </select>
         </div>
         
+        ${state.settings.provider === 'custom' ? `
+        <!-- Custom Model Configuration -->
+        <div style="background: var(--color-background-secondary); padding: 1rem; border-radius: var(--border-radius-md); margin-bottom: 1rem;">
+          <p class="text-sm" style="margin: 0 0 1rem 0; font-weight: 600;">🛠️ Custom Model Configuration</p>
+          
+          <div class="form-group">
+            <label>API Endpoint URL</label>
+            <input type="url" 
+                   id="customEndpoint" 
+                   value="${state.settings.providers.custom.customConfig.endpoint}" 
+                   onchange="App.updateCustomModelSetting('endpoint', this.value)" 
+                   placeholder="http://localhost:11434/v1/chat/completions">
+            <small class="text-muted">Examples: Ollama (http://localhost:11434/v1/chat/completions), LM Studio (http://localhost:1234/v1/chat/completions)</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Model Name</label>
+            <input type="text" 
+                   id="customModel" 
+                   value="${state.settings.providers.custom.customConfig.modelName}" 
+                   onchange="App.updateCustomModelSetting('modelName', this.value)" 
+                   placeholder="llama3">
+            <small class="text-muted">Model identifier (e.g., llama3, mistral, codellama, phi3, gemma2)</small>
+          </div>
+          
+          <div class="form-group">
+            <label>API Format</label>
+            <select id="customFormat" onchange="App.updateCustomModelSetting('apiFormat', this.value)">
+              <option value="openai" ${state.settings.providers.custom.customConfig.apiFormat === 'openai' ? 'selected' : ''}>OpenAI Compatible (most common)</option>
+              <option value="anthropic" ${state.settings.providers.custom.customConfig.apiFormat === 'anthropic' ? 'selected' : ''}>Anthropic Compatible</option>
+            </select>
+            <small class="text-muted">Most local servers (Ollama, LM Studio, vLLM, text-generation-webui) use OpenAI format</small>
+          </div>
+          
+          <div class="grid-2" style="gap: 1rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Max Tokens</label>
+              <input type="number" 
+                     id="customMaxTokens" 
+                     value="${state.settings.providers.custom.customConfig.maxTokens}" 
+                     onchange="App.updateCustomModelSetting('maxTokens', parseInt(this.value))" 
+                     placeholder="4096"
+                     min="256" max="32768">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Temperature</label>
+              <input type="number" 
+                     id="customTemp" 
+                     value="${state.settings.providers.custom.customConfig.temperature}" 
+                     onchange="App.updateCustomModelSetting('temperature', parseFloat(this.value))" 
+                     placeholder="0.3"
+                     min="0" max="2" step="0.1">
+            </div>
+          </div>
+        </div>
+        
+        <div style="padding: 0.75rem; background: var(--color-background-info); border-radius: var(--border-radius-md); margin-bottom: 1rem;">
+          <p class="text-sm" style="margin: 0; color: var(--color-text-info);">
+            💡 <strong>Popular Local Models:</strong><br>
+            • <strong>Ollama:</strong> llama3, mistral, codellama, phi3, gemma2, qwen2<br>
+            • <strong>LM Studio:</strong> Any GGUF model you've downloaded<br>
+            • <strong>vLLM/TGI:</strong> Any HuggingFace model
+          </p>
+        </div>
+        ` : `
         <div class="form-group">
           <label>Model</label>
           <select id="model" onchange="App.updateSetting('model', this.value)">
@@ -1623,14 +3603,15 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
             `).join('')}
           </select>
         </div>
+        `}
         
         <div class="form-group">
-          <label>API Key</label>
+          <label>API Key ${state.settings.provider === 'custom' ? '(optional for local models)' : ''}</label>
           <input type="password" 
                  id="apiKey" 
                  value="${state.settings.apiKey}" 
                  onchange="App.updateSetting('apiKey', this.value)" 
-                 placeholder="Enter your API key">
+                 placeholder="${state.settings.provider === 'custom' ? 'Leave blank for local models' : 'Enter your API key'}">
         </div>
         
         <button onclick="App.testConnection()">Test Connection</button>
@@ -1653,15 +3634,17 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
                  value="${state.settings.openMetadata.url}" 
                  onchange="App.updateOpenMetadataSetting('url', this.value)" 
                  placeholder="http://localhost:8585">
+          <small class="text-muted">Example: http://localhost:8585 (default local) or https://your-org.open-metadata.org</small>
         </div>
         
         <div class="form-group">
-          <label>JWT Token <span class="text-muted">(optional, for secured instances)</span></label>
+          <label>JWT Token <span class="text-muted">(required for auth-enabled instances)</span></label>
           <input type="password" 
                  id="omToken" 
                  value="${state.settings.openMetadata.jwtToken}" 
                  onchange="App.updateOpenMetadataSetting('jwtToken', this.value)" 
-                 placeholder="Leave empty for local development">
+                 placeholder="eyJhbGciOiJSUzI1NiIs...">
+          <small class="text-muted">Get from: OpenMetadata → Settings → Bots → ingestion-bot → Copy Token</small>
         </div>
         
         <div class="grid-2" style="gap: 1rem;">
@@ -1672,6 +3655,7 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
                    value="${state.settings.openMetadata.serviceName}" 
                    onchange="App.updateOpenMetadataSetting('serviceName', this.value)" 
                    placeholder="dataset_augmenter">
+            <small class="text-muted">Will create a CustomDatabase service</small>
           </div>
           
           <div class="form-group" style="margin-bottom: 0;">
@@ -1680,20 +3664,25 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
                    id="omDatabase" 
                    value="${state.settings.openMetadata.databaseName}" 
                    onchange="App.updateOpenMetadataSetting('databaseName', this.value)" 
-                   placeholder="default">
+                   placeholder="datasets">
+            <small class="text-muted">Tables go here: service → database → default</small>
           </div>
         </div>
         
         <div style="margin-top: 1rem;">
-          <button onclick="App.testOpenMetadataConnection()">Test Connection</button>
+          <button onclick="App.testOpenMetadataConnection()">🔌 Test Connection</button>
         </div>
       </div>
       
       <div style="padding: 1rem; background: var(--color-background-secondary); border-radius: var(--border-radius-md);">
-        <p class="text-sm text-muted" style="margin: 0;">
-          📊 OpenMetadata integration allows you to push your cataloged datasets directly to your data catalog.
-          Make sure OpenMetadata is running and accessible at the URL above.
-        </p>
+        <p class="text-sm text-muted" style="margin: 0 0 0.5rem 0; font-weight: 600;">📊 How to use OpenMetadata Integration:</p>
+        <ol class="text-sm text-muted" style="margin: 0; padding-left: 1.2rem;">
+          <li>Start the local proxy server: <code>python3 server.py</code></li>
+          <li>Open app at <code>http://localhost:3000</code></li>
+          <li>Configure your OpenMetadata URL and JWT token above</li>
+          <li>Upload a CSV, augment metadata with AI</li>
+          <li>Click ⋮ menu on dataset → "Push to OpenMetadata"</li>
+        </ol>
       </div>
       
       <h2 class="card-title mb-3" style="margin-top: 2rem;">🔍 Web Search Enhancement (Optional)</h2>
@@ -1802,14 +3791,54 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
         </table>
       </div>
       
+      <!-- Custom Schemas Section -->
+      <div class="card mb-3" style="padding: 1rem;">
+        <h3 class="text-sm" style="margin: 0 0 0.75rem 0; color: var(--color-text-secondary);">⭐ My Schemas</h3>
+        
+        <div class="flex gap-2 mb-3" style="flex-wrap: wrap;">
+          <button class="btn-sm" onclick="App.saveAsDefaultSchema()" title="Save current schema as your default">💾 Set as Default</button>
+          <button class="btn-sm" onclick="App.saveCustomSchema()" title="Save current schema with a custom name">➕ Save as Custom...</button>
+          ${state.defaultSchema ? `<button class="btn-sm" onclick="App.loadDefaultSchema()" title="Load your saved default schema">📋 Load Default</button>` : ''}
+          ${state.defaultSchema ? `<button class="btn-sm btn-danger" onclick="App.clearDefaultSchema()" title="Remove default schema">🗑️ Clear Default</button>` : ''}
+        </div>
+        
+        ${Object.keys(state.customSchemas || {}).length > 0 ? `
+          <p class="text-sm text-muted" style="margin: 0 0 0.5rem 0; font-weight: 600;">📁 Custom Schemas:</p>
+          <div class="flex gap-2" style="flex-wrap: wrap;">
+            ${Object.keys(state.customSchemas).map(name => `
+              <div style="display: inline-flex; align-items: center; gap: 2px; background: var(--color-background-secondary); border-radius: var(--border-radius-sm); padding: 2px;">
+                <button class="btn-sm" onclick="App.loadCustomSchema('${name.replace(/'/g, "\\'")}')">📄 ${name}</button>
+                <button class="btn-sm btn-danger" onclick="App.deleteCustomSchema('${name.replace(/'/g, "\\'")}')" title="Delete this schema" style="padding: 0.25rem 0.5rem;">×</button>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <p class="text-sm text-muted" style="margin: 0; font-style: italic;">No custom schemas saved yet. Modify a preset and click "Save as Custom..." to create one.</p>
+        `}
+      </div>
+      
+      <!-- World Bank Standard Presets -->
+      <div class="card mb-3" style="padding: 1rem;">
+        <h3 class="text-sm" style="margin: 0 0 0.75rem 0; color: var(--color-text-secondary);">🌐 World Bank Standard Presets</h3>
+        <p class="text-sm text-muted" style="margin: 0 0 1rem 0;">Based on <a href="https://github.com/worldbank/metadata-schemas" target="_blank" style="color: var(--color-primary);">World Bank Metadata Standards</a></p>
+        
+        <div class="flex gap-2" style="flex-wrap: wrap;">
+          <button class="btn-sm" onclick="App.loadPreset('microdata')" title="Surveys, censuses, unit-level data (DDI 2.5)">📊 Microdata (DDI)</button>
+          <button class="btn-sm" onclick="App.loadPreset('document')" title="Reports, publications, PDFs">📄 Document</button>
+          <button class="btn-sm" onclick="App.loadPreset('timeseries')" title="Time-based indicators, WDI-style data">📈 Timeseries</button>
+          <button class="btn-sm" onclick="App.loadPreset('table')" title="Statistical tables, cross-tabulations">📋 Table</button>
+          <button class="btn-sm" onclick="App.loadPreset('geospatial')" title="GIS data, maps, satellite imagery (ISO 19115)">🗺️ Geospatial</button>
+          <button class="btn-sm" onclick="App.loadPreset('ashoka_datalake')" title="Social sector datasets for India" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;">🏛️ Ashoka Datalake</button>
+        </div>
+        
+        <p class="text-sm text-muted" style="margin: 1rem 0 0 0; font-style: italic;">💡 Tip: Load a preset, customize it, then save as a custom schema for your workflow.</p>
+      </div>
+      
       <div class="flex gap-2" style="flex-wrap: wrap;">
-        <button onclick="App.loadPreset('government')">📋 Government Dataset</button>
-        <button onclick="App.loadPreset('survey')">📝 Survey Data</button>
-        <button onclick="App.loadPreset('timeseries')">📈 Time Series</button>
-        <button onclick="App.exportSchema()">💾 Export Schema</button>
+        <button onclick="App.exportSchema()">💾 Export Schema (JSON)</button>
         <label style="cursor: pointer;">
           <input type="file" accept=".json" onchange="App.importSchema(event)" style="display: none;">
-          <span class="btn">📂 Import Schema</span>
+          <span class="btn">📂 Import Schema (JSON)</span>
         </label>
       </div>
     </div>
@@ -1829,11 +3858,11 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
           <h2 class="card-title">Datasets (${state.datasets.length})</h2>
           <div class="flex gap-2">
             ${state.datasets.length > 0 ? `
-              <div style="position: relative; display: inline-block;">
-                <button onclick="this.nextElementSibling.classList.toggle('hidden')">
+              <div style="position: relative; display: inline-block;" data-dropdown>
+                <button onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle('hidden')">
                   📥 Export All ▾
                 </button>
-                <div class="hidden" style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); z-index: 100; min-width: 200px;">
+                <div class="dropdown-menu hidden" style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); z-index: 100; min-width: 200px;">
                   <button onclick="App.exportAllMetadataCSV(); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
                     📄 All Metadata as CSV
                   </button>
@@ -2058,11 +4087,11 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
             <button onclick="App.augment('${dataset.id}')" ${state.augmenting ? 'disabled' : ''}>
               ${state.augmenting ? '⏳ Augmenting...' : '🤖 Augment with AI'}
             </button>
-            <div style="position: relative; display: inline-block;">
-              <button onclick="this.nextElementSibling.classList.toggle('hidden')">
+            <div style="position: relative; display: inline-block;" data-dropdown>
+              <button onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle('hidden')">
                 📥 Export ▾
               </button>
-              <div class="hidden" style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); z-index: 100; min-width: 180px;">
+              <div class="dropdown-menu hidden" style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); z-index: 100; min-width: 180px;">
                 <button onclick="App.exportMetadataCSV('${dataset.id}'); this.parentElement.classList.add('hidden')" style="width: 100%; border: none; border-radius: 0; justify-content: flex-start; padding: 10px 14px;">
                   📄 Metadata as CSV
                 </button>
@@ -2094,6 +4123,53 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
           </div>
         ` : ''}
         
+        ${(() => {
+          // Quality Summary Card
+          if (!dataset.quality || Object.keys(dataset.quality).length === 0) return '';
+          
+          const scores = Object.values(dataset.quality).map(q => q.score).filter(s => typeof s === 'number');
+          if (scores.length === 0) return '';
+          
+          const avgScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+          const excellent = scores.filter(s => s >= 9).length;
+          const good = scores.filter(s => s >= 7 && s < 9).length;
+          const satisfactory = scores.filter(s => s >= 5 && s < 7).length;
+          const needsWork = scores.filter(s => s < 5).length;
+          
+          const rating = avgScore >= 9 ? 'Excellent' : avgScore >= 7 ? 'Good' : avgScore >= 5 ? 'Satisfactory' : 'Needs Work';
+          const ratingColor = avgScore >= 7 ? 'var(--color-accent-success)' : avgScore >= 5 ? 'var(--color-accent-warning)' : 'var(--color-accent-danger)';
+          const percentage = Math.round(avgScore * 10);
+          
+          return `
+            <div class="card mb-3" style="background: var(--gradient-subtle); border: 1px solid var(--color-border);">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                  <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+                    <span style="font-size: 1.5rem; font-weight: 700; color: ${ratingColor};">${avgScore}/10</span>
+                    <span style="font-size: 1rem; color: var(--color-text-secondary);">(${rating})</span>
+                  </div>
+                  <div style="width: 200px; height: 8px; background: var(--color-background-tertiary); border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${percentage}%; height: 100%; background: ${ratingColor}; border-radius: 4px;"></div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 16px; font-size: 0.85rem;">
+                  ${excellent > 0 ? `<span>🟢 Excellent: ${excellent}</span>` : ''}
+                  ${good > 0 ? `<span>🟢 Good: ${good}</span>` : ''}
+                  ${satisfactory > 0 ? `<span>🟡 Satisfactory: ${satisfactory}</span>` : ''}
+                  ${needsWork > 0 ? `<span style="color: var(--color-accent-danger);">🔴 Needs work: ${needsWork}</span>` : ''}
+                </div>
+                <div>
+                  <button onclick="App.rejudgeAllFields('${dataset.id}')" 
+                          style="padding: 8px 16px; font-size: 0.85rem; background: var(--color-background-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-md); cursor: pointer;"
+                          ${state.augmenting ? 'disabled' : ''}>
+                    ⚖️ Re-Judge All
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        })()}
+        
         <div class="grid-2">
           <!-- Metadata Form -->
           <div>
@@ -2121,25 +4197,62 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
                 const isEmpty = !value || (Array.isArray(value) && value.length === 0);
                 const isInferring = state.inferringField === field.id;
                 const canInfer = field.aiInfer === true;
+                const quality = dataset.quality?.[field.name];
+                const hasScore = quality && typeof quality.score === 'number';
+                const scoreColor = hasScore ? (quality.score >= 9 ? 'var(--color-accent-success)' : quality.score >= 7 ? 'var(--color-accent-success)' : quality.score >= 5 ? 'var(--color-accent-warning)' : 'var(--color-accent-danger)') : '';
+                const scoreEmoji = hasScore ? (quality.score >= 9 ? '🟢' : quality.score >= 7 ? '🟢' : quality.score >= 5 ? '🟡' : '🔴') : '';
+                
                 return `
-                <div class="form-group" style="position: relative;">
+                <div class="form-group" style="position: relative; ${hasScore && quality.score < 7 ? 'border-left: 3px solid ' + scoreColor + '; padding-left: 12px;' : ''}">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label style="margin-bottom: 0;">
+                    <label style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
                       ${field.name}
                       ${field.required ? '<span class="text-danger">*</span>' : ''}
                       ${isEmpty ? '<span class="badge badge-warning" style="margin-left: 6px;">Empty</span>' : ''}
+                      ${hasScore ? `<span style="font-size: 0.8rem; color: ${scoreColor}; font-weight: 600;">${scoreEmoji} ${quality.score}/10</span>` : ''}
                     </label>
-                    ${canInfer ? `
-                      <button class="btn-sm" 
-                              onclick="App.inferSingleField('${dataset.id}', '${field.id}')" 
-                              ${state.augmenting || isInferring ? 'disabled' : ''}
-                              style="padding: 4px 10px; font-size: 0.75rem; background: var(--color-background-info); color: var(--color-text-info); border: none;"
-                              title="Use AI to infer this field">
-                        ${isInferring ? '⏳ Inferring...' : '🤖 Infer'}
-                      </button>
-                    ` : ''}
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                      ${canInfer ? `
+                        <button class="btn-sm" 
+                                onclick="App.inferSingleField('${dataset.id}', '${field.id}')" 
+                                ${state.augmenting || isInferring ? 'disabled' : ''}
+                                style="padding: 4px 10px; font-size: 0.75rem; background: var(--color-background-info); color: var(--color-text-info); border: none;"
+                                title="Use AI to infer this field">
+                          ${isInferring ? '⏳ Inferring...' : '🤖 Infer'}
+                        </button>
+                      ` : ''}
+                    </div>
                   </div>
                   ${renderMetadataInput(dataset, field)}
+                  ${hasScore && quality.feedback && quality.score < 7 ? `
+                    <div style="margin-top: 8px; padding: 12px; background: var(--color-background-secondary); border-radius: var(--radius-sm); font-size: 0.85rem; border: 1px solid var(--color-border-tertiary);">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="color: var(--color-text-muted); font-weight: 500;">💬 Judge Feedback:</span>
+                        <span style="color: var(--color-text-muted); font-size: 0.75rem;">Attempts: ${quality.attempts || 1}/3</span>
+                      </div>
+                      <textarea 
+                        id="feedback-${field.id}"
+                        style="width: 100%; min-height: 60px; padding: 8px; border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-sm); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 0.85rem; resize: vertical; margin-bottom: 10px;"
+                        placeholder="Edit feedback before regenerating..."
+                      >${quality.feedback}</textarea>
+                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button onclick="App.acceptCurrentValue('${dataset.id}', '${field.name}')"
+                                style="padding: 6px 14px; font-size: 0.8rem; background: var(--color-accent-success); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer;">
+                          ✓ Accept Current
+                        </button>
+                        ${(quality.attempts || 1) < 3 ? `
+                          <button onclick="App.regenerateWithFeedback('${dataset.id}', '${field.name}', document.getElementById('feedback-${field.id}').value)"
+                                  style="padding: 6px 14px; font-size: 0.8rem; background: var(--color-accent-primary); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer;">
+                            ♻️ Regenerate
+                          </button>
+                        ` : ''}
+                        <button onclick="App.dismissFeedback('${dataset.id}', '${field.name}')"
+                                style="padding: 6px 14px; font-size: 0.8rem; background: transparent; color: var(--color-text-muted); border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-sm); cursor: pointer;">
+                          ✕ Dismiss
+                        </button>
+                      </div>
+                    </div>
+                  ` : ''}
                 </div>
               `}).join('')}
             </div>
@@ -2394,12 +4507,58 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
      * Initialize the application
      */
     init: () => {
+      // Load saved theme preference
+      const savedTheme = localStorage.getItem('dma-theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+      
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', (e) => {
+        // Check if click is outside any dropdown
+        if (!e.target.closest('[data-dropdown]') && !e.target.closest('.dropdown-menu')) {
+          document.querySelectorAll('.dropdown-menu:not(.hidden)').forEach(menu => {
+            menu.classList.add('hidden');
+          });
+        }
+      });
+      
       loadState();
-      render();
+      renderPage(); // Start with home page
     },
     
     /**
-     * Navigate to a view
+     * Toggle between light and dark theme
+     */
+    toggleTheme: () => {
+      const root = document.documentElement;
+      const currentTheme = root.getAttribute('data-theme');
+      
+      let newTheme;
+      if (currentTheme === 'dark') {
+        newTheme = 'light';
+      } else if (currentTheme === 'light') {
+        newTheme = 'dark';
+      } else {
+        // No theme set, check system preference and toggle opposite
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        newTheme = prefersDark ? 'light' : 'dark';
+      }
+      
+      root.setAttribute('data-theme', newTheme);
+      localStorage.setItem('dma-theme', newTheme);
+    },
+    
+    /**
+     * Show a site page (home, guide, tool)
+     */
+    showPage: (page) => {
+      currentPage = page;
+      renderPage();
+    },
+    
+    /**
+     * Navigate to a tool view (datasets, schema, settings)
      */
     navigate: (view) => {
       state.view = view;
@@ -2413,8 +4572,26 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
     updateSetting: (key, value) => {
       state.settings[key] = value;
       if (key === 'provider') {
-        state.settings.model = state.settings.providers[value].models[0];
+        // For custom provider, use the custom config model name
+        if (value === 'custom') {
+          state.settings.model = state.settings.providers.custom.customConfig.modelName;
+        } else {
+          state.settings.model = state.settings.providers[value].models[0];
+        }
       }
+      render();
+    },
+    
+    /**
+     * Update Custom Model settings
+     */
+    updateCustomModelSetting: (key, value) => {
+      state.settings.providers.custom.customConfig[key] = value;
+      // Also update the model in main settings if it's the model name
+      if (key === 'modelName') {
+        state.settings.model = value;
+      }
+      saveState();
       render();
     },
     
@@ -2422,9 +4599,19 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
      * Test LLM connection
      */
     testConnection: async () => {
-      if (!state.settings.apiKey) {
+      // Custom provider doesn't always need an API key (local models)
+      if (state.settings.provider !== 'custom' && !state.settings.apiKey) {
         showToast('Please enter an API key', 'error');
         return;
+      }
+      
+      // For custom provider, check endpoint is configured
+      if (state.settings.provider === 'custom') {
+        const endpoint = state.settings.providers.custom.customConfig.endpoint;
+        if (!endpoint) {
+          showToast('Please configure the API endpoint URL', 'error');
+          return;
+        }
       }
       
       showToast('Testing connection...', 'info');
@@ -2513,80 +4700,143 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
     
     /**
      * Ensure OpenMetadata service, database, and schema exist
-     * Ignores 409 (already exists) errors
+     * First tries to use existing sample_data service, then creates custom if needed
      */
     ensureOpenMetadataStructure: async (serviceName, databaseName, schemaName) => {
-      // Try to create service (ignore if exists)
+      console.log('Creating OpenMetadata structure:', { serviceName, databaseName, schemaName });
+      
+      // Step 1: Try to create service (ignore 409 if exists)
       const servicePayload = {
         name: serviceName,
         serviceType: 'CustomDatabase',
-        description: 'Dataset Metadata Augmenter imports',
+        description: 'Dataset Metadata Augmenter - Cataloged research datasets',
         connection: {
           config: {
             type: 'CustomDatabase',
-            sourcePythonClass: 'metadata.ingestion.source.database.customdatabase.metadata.CustomDatabaseSource'
+            sourcePythonClass: 'metadata.ingestion.source.database.customdatabase.metadata.CustomDatabaseSource',
+            connectionOptions: {}
           }
         }
       };
       
+      console.log('Creating service:', JSON.stringify(servicePayload, null, 2));
       const serviceResp = await App.omFetch('/api/v1/services/databaseServices', {
         method: 'POST',
         body: JSON.stringify(servicePayload)
       });
       
-      if (!serviceResp.ok && serviceResp.status !== 409) {
-        const err = await serviceResp.json().catch(() => ({}));
-        if (err.code !== 409) {
-          throw new Error(err.message || `Failed to create service: ${serviceResp.status}`);
-        }
+      const serviceRespText = await serviceResp.text();
+      console.log('Service response:', serviceResp.status, serviceRespText);
+      
+      // Check for success or conflict (409 = already exists, which is OK)
+      let serviceStatus = serviceResp.status;
+      
+      // Fallback: check if response body contains conflict info (proxy may return 500 with conflict in body)
+      if (serviceStatus === 500 && serviceRespText.includes('409')) {
+        console.log('Detected 409 conflict in response body, treating as success');
+        serviceStatus = 409;
       }
       
-      // Try to create database (ignore if exists)
+      const serviceOk = serviceStatus >= 200 && serviceStatus < 300;
+      const serviceConflict = serviceStatus === 409;
+      
+      if (!serviceOk && !serviceConflict) {
+        let errMsg = `HTTP ${serviceStatus}`;
+        try {
+          const err = JSON.parse(serviceRespText);
+          errMsg = err.message || err.error || errMsg;
+        } catch (e) {
+          errMsg = serviceRespText || errMsg;
+        }
+        throw new Error(`Service creation failed: ${errMsg}`);
+      }
+      console.log('Service ready', serviceConflict ? '(already exists)' : '(created)');
+      
+      // Step 2: Create database (ignore 409 if exists)
       const dbPayload = {
         name: databaseName,
         service: serviceName,
-        description: 'Datasets imported from Dataset Metadata Augmenter'
+        description: 'Datasets cataloged via Dataset Metadata Augmenter'
       };
       
+      console.log('Creating database:', JSON.stringify(dbPayload, null, 2));
       const dbResp = await App.omFetch('/api/v1/databases', {
         method: 'POST',
         body: JSON.stringify(dbPayload)
       });
       
-      // Ignore 409 for database too
-      if (!dbResp.ok && dbResp.status !== 409) {
-        const err = await dbResp.json().catch(() => ({}));
-        if (err.code !== 409) {
-          console.warn('Database creation issue:', err);
-        }
+      const dbRespText = await dbResp.text();
+      console.log('Database response:', dbResp.status, dbRespText);
+      
+      // Check for success or conflict
+      let dbStatus = dbResp.status;
+      if (dbStatus === 500 && dbRespText.includes('409')) {
+        console.log('Detected 409 conflict in response body, treating as success');
+        dbStatus = 409;
       }
       
-      // Try to create schema (ignore if exists)
+      const dbOk = dbStatus >= 200 && dbStatus < 300;
+      const dbConflict = dbStatus === 409;
+      
+      if (!dbOk && !dbConflict) {
+        let errMsg = `HTTP ${dbStatus}`;
+        try {
+          const err = JSON.parse(dbRespText);
+          errMsg = err.message || err.error || errMsg;
+        } catch (e) {
+          errMsg = dbRespText || errMsg;
+        }
+        throw new Error(`Database creation failed: ${errMsg}`);
+      }
+      console.log('Database ready', dbConflict ? '(already exists)' : '(created)');
+      
+      // Step 3: Create schema (ignore 409 if exists)
+      const dbFqn = `${serviceName}.${databaseName}`;
       const schemaPayload = {
         name: schemaName,
-        database: `${serviceName}.${databaseName}`,
-        description: 'Default schema'
+        database: dbFqn,
+        description: 'Default schema for cataloged datasets'
       };
       
+      console.log('Creating schema:', JSON.stringify(schemaPayload, null, 2));
       const schemaResp = await App.omFetch('/api/v1/databaseSchemas', {
         method: 'POST',
         body: JSON.stringify(schemaPayload)
       });
       
-      // Ignore 409 for schema too
-      if (!schemaResp.ok && schemaResp.status !== 409) {
-        const err = await schemaResp.json().catch(() => ({}));
-        if (err.code !== 409) {
-          console.warn('Schema creation issue:', err);
-        }
+      const schemaRespText = await schemaResp.text();
+      console.log('Schema response:', schemaResp.status, schemaRespText);
+      
+      // Check for success or conflict
+      let schemaStatus = schemaResp.status;
+      if (schemaStatus === 500 && schemaRespText.includes('409')) {
+        console.log('Detected 409 conflict in response body, treating as success');
+        schemaStatus = 409;
       }
+      
+      const schemaOk = schemaStatus >= 200 && schemaStatus < 300;
+      const schemaConflict = schemaStatus === 409;
+      
+      if (!schemaOk && !schemaConflict) {
+        let errMsg = `HTTP ${schemaStatus}`;
+        try {
+          const err = JSON.parse(schemaRespText);
+          errMsg = err.message || err.error || errMsg;
+        } catch (e) {
+          errMsg = schemaRespText || errMsg;
+        }
+        throw new Error(`Schema creation failed: ${errMsg}`);
+      }
+      console.log('Schema ready', schemaConflict ? '(already exists)' : '(created)');
+      
+      return `${serviceName}.${databaseName}.${schemaName}`;
     },
     
     /**
      * Test OpenMetadata connection
      */
     testOpenMetadataConnection: async () => {
-      const { url } = state.settings.openMetadata;
+      const { url, jwtToken } = state.settings.openMetadata;
       
       if (!url) {
         showToast('Please enter OpenMetadata URL', 'error');
@@ -2596,18 +4846,42 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
       showToast('Testing OpenMetadata connection...', 'info');
       
       try {
+        // First test basic connectivity with version endpoint
+        console.log('Testing connection to:', url);
         const response = await App.omFetch('/api/v1/system/version', {
           method: 'GET'
         });
         
+        const responseText = await response.text();
+        console.log('Version response:', response.status, responseText);
+        
         if (response.ok) {
-          const data = await response.json();
-          showToast(`Connected! OpenMetadata v${data.version}`, 'success');
+          const data = JSON.parse(responseText);
+          
+          // Also test auth by trying to list services
+          if (jwtToken) {
+            const servicesResp = await App.omFetch('/api/v1/services/databaseServices?limit=1', {
+              method: 'GET'
+            });
+            
+            if (servicesResp.ok) {
+              showToast(`✅ Connected to OpenMetadata v${data.version} (Auth OK)`, 'success');
+            } else if (servicesResp.status === 401 || servicesResp.status === 403) {
+              showToast(`⚠️ Connected v${data.version} but JWT token invalid`, 'warning');
+            } else {
+              showToast(`✅ Connected to OpenMetadata v${data.version}`, 'success');
+            }
+          } else {
+            showToast(`✅ Connected to OpenMetadata v${data.version} (No JWT set)`, 'success');
+          }
+        } else if (response.status === 401 || response.status === 403) {
+          showToast('❌ Authentication failed - check JWT token', 'error');
         } else {
-          throw new Error(`HTTP ${response.status}`);
+          throw new Error(`HTTP ${response.status}: ${responseText}`);
         }
       } catch (error) {
-        showToast(`Connection failed: ${error.message}`, 'error');
+        console.error('Connection test failed:', error);
+        showToast(`❌ Connection failed: ${error.message}`, 'error');
       }
     },
     
@@ -2632,76 +4906,118 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
         const tableName = dataset.name
           .replace(/\.[^.]+$/, '')  // Remove extension
           .replace(/[^a-zA-Z0-9_]/g, '_')  // Replace special chars
-          .toLowerCase();
+          .replace(/_+/g, '_')  // Collapse multiple underscores
+          .replace(/^_|_$/g, '')  // Remove leading/trailing underscores
+          .toLowerCase()
+          .substring(0, 128);  // Max length
         
         const schemaName = 'default';
-        const fqn = `${serviceName}.${databaseName}.${schemaName}.${tableName}`;
         
-        // Build table description from metadata
-        const description = [
-          dataset.metadata?.['Dataset Name'] || dataset.name,
-          dataset.metadata?.['Source Agency'] ? `**Source:** ${dataset.metadata['Source Agency']}` : '',
-          dataset.metadata?.['Source URL'] ? `**URL:** ${dataset.metadata['Source URL']}` : '',
-          dataset.metadata?.['Temporal Coverage'] ? `**Period:** ${dataset.metadata['Temporal Coverage']}` : '',
-          dataset.metadata?.['Geographic Coverage'] ? `**Coverage:** ${dataset.metadata['Geographic Coverage']}` : '',
-          dataset.metadata?.['Methodology Notes'] || '',
-        ].filter(Boolean).join('\n\n');
+        // First ensure the service/database/schema structure exists
+        const schemaFqn = await App.ensureOpenMetadataStructure(serviceName, databaseName, schemaName);
+        console.log('Schema FQN:', schemaFqn);
         
-        // Build columns from dataset headers
+        // Build rich description from all metadata fields
+        const descriptionParts = [];
+        
+        // Add main description/abstract if available
+        const mainDesc = dataset.metadata?.description || dataset.metadata?.abstract || 
+                        dataset.metadata?.['Dataset Name'] || dataset.name;
+        if (mainDesc) descriptionParts.push(mainDesc);
+        
+        // Add key metadata as markdown sections
+        const metadataFields = [
+          { key: 'authoring_entity', label: 'Authoring Entity' },
+          { key: 'Source Agency', label: 'Source Agency' },
+          { key: 'source_url', label: 'Source URL' },
+          { key: 'Source URL', label: 'Source URL' },
+          { key: 'geog_coverage', label: 'Geographic Coverage' },
+          { key: 'Geographic Coverage', label: 'Geographic Coverage' },
+          { key: 'time_periods', label: 'Time Period' },
+          { key: 'Temporal Coverage', label: 'Temporal Coverage' },
+          { key: 'universe', label: 'Universe' },
+          { key: 'sampling_procedure', label: 'Sampling' },
+          { key: 'access_policy', label: 'Access Policy' },
+          { key: 'license', label: 'License' },
+          { key: 'cit_req', label: 'Citation' }
+        ];
+        
+        const metadataSection = metadataFields
+          .filter(f => dataset.metadata?.[f.key])
+          .map(f => `**${f.label}:** ${dataset.metadata[f.key]}`)
+          .join('\n\n');
+        
+        if (metadataSection) {
+          descriptionParts.push('\n---\n' + metadataSection);
+        }
+        
+        const description = descriptionParts.join('\n\n') || `Dataset: ${dataset.name}`;
+        
+        // Build columns from dataset headers with stats
+        const stats = computeStats(dataset.data);
         const columns = (dataset.data?.headers || []).map((colName, index) => {
-          const stats = computeStats(dataset.data);
           const colStats = stats?.columns?.[index];
           
-          let colDescription = '';
+          // Build column description with stats
+          let colDescription = `Column: ${colName}`;
           if (colStats) {
-            colDescription = `Fill rate: ${colStats.fillRate}%, Unique values: ${colStats.uniqueCount}`;
+            const statParts = [];
+            statParts.push(`Fill rate: ${colStats.fillRate}%`);
+            statParts.push(`Unique: ${colStats.uniqueCount}`);
             if (colStats.isNumeric) {
-              colDescription += `, Range: ${colStats.min} - ${colStats.max}`;
+              statParts.push(`Range: ${colStats.min} - ${colStats.max}`);
             }
+            if (colStats.sample) {
+              statParts.push(`Sample: ${colStats.sample.slice(0, 3).join(', ')}`);
+            }
+            colDescription = statParts.join(' | ');
+          }
+          
+          // Determine data type
+          let dataType = 'STRING';
+          if (colStats?.isNumeric) {
+            dataType = colStats.hasDecimals ? 'DOUBLE' : 'BIGINT';
+          } else if (colStats?.isDate) {
+            dataType = 'DATE';
           }
           
           return {
-            name: colName.replace(/[^a-zA-Z0-9_]/g, '_'),
+            name: colName.replace(/[^a-zA-Z0-9_]/g, '_').substring(0, 128),
             displayName: colName,
-            dataType: colStats?.isNumeric ? 'NUMBER' : colStats?.isDate ? 'DATE' : 'STRING',
-            description: colDescription || `Column: ${colName}`
+            dataType: dataType,
+            description: colDescription
           };
         });
         
-        // Build tags
-        const tags = [];
-        if (Array.isArray(dataset.metadata?.Tags)) {
-          dataset.metadata.Tags.forEach(tag => {
-            tags.push({
-              tagFQN: `Tier.${tag.replace(/[^a-zA-Z0-9]/g, '')}`,
-              source: 'Classification'
-            });
-          });
-        }
+        // Note: Tags require pre-existing classifications in OpenMetadata
+        // Skip tags for now to avoid "tag instance not found" errors
         
-        // Create table payload
+        // Create table payload - databaseSchema must be the FQN string
         const tablePayload = {
           name: tableName,
-          displayName: dataset.metadata?.['Dataset Name'] || dataset.name,
+          displayName: dataset.metadata?.title || dataset.metadata?.['Dataset Name'] || dataset.name,
           description: description,
           tableType: 'Regular',
-          columns: columns,
-          databaseSchema: `${serviceName}.${databaseName}.${schemaName}`,
-          tags: tags.length > 0 ? tags : undefined
+          columns: columns.length > 0 ? columns : [{ name: 'data', dataType: 'STRING', description: 'Data column' }],
+          databaseSchema: schemaFqn  // This is the FQN: service.database.schema
         };
         
-        // Ensure service, database, and schema exist (ignore if already exists)
-        await App.ensureOpenMetadataStructure(serviceName, databaseName, schemaName);
+        console.log('Creating table with payload:', JSON.stringify(tablePayload, null, 2));
         
-        // Create or update table
+        // Use PUT for upsert (create or update)
         const tableResponse = await App.omFetch('/api/v1/tables', {
-          method: 'POST',
+          method: 'PUT',
           body: JSON.stringify(tablePayload)
         });
         
+        const responseText = await tableResponse.text();
+        console.log('Table response:', tableResponse.status, responseText);
+        
         if (tableResponse.ok) {
-          const result = await tableResponse.json();
-          showToast(`Pushed to OpenMetadata! Table: ${result.name}`, 'success');
+          const result = JSON.parse(responseText);
+          const fqn = result.fullyQualifiedName || `${schemaFqn}.${tableName}`;
+          
+          showToast(`✅ Pushed to OpenMetadata: ${result.name}`, 'success');
           
           // Mark dataset as synced
           dataset.openMetadataFqn = fqn;
@@ -2709,32 +5025,19 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
           saveState();
           render();
         } else {
-          const err = await tableResponse.json().catch(() => ({}));
-          
-          // If table exists, try to update
-          if (tableResponse.status === 409 || err.code === 409) {
-            const updateResponse = await App.omFetch('/api/v1/tables', {
-              method: 'PUT',
-              body: JSON.stringify(tablePayload)
-            });
-            
-            if (updateResponse.ok) {
-              showToast('Updated existing table in OpenMetadata!', 'success');
-              dataset.openMetadataFqn = fqn;
-              dataset.openMetadataSyncedAt = new Date().toISOString();
-              saveState();
-              render();
-            } else {
-              throw new Error(err.message || `Failed: ${tableResponse.status}`);
-            }
-          } else {
-            throw new Error(err.message || `Failed: ${tableResponse.status}`);
+          let errorMsg = `HTTP ${tableResponse.status}`;
+          try {
+            const err = JSON.parse(responseText);
+            errorMsg = err.message || err.error || errorMsg;
+          } catch (e) {
+            errorMsg = responseText || errorMsg;
           }
+          throw new Error(errorMsg);
         }
         
       } catch (error) {
         console.error('OpenMetadata push error:', error);
-        showToast(`Push failed: ${error.message}`, 'error');
+        showToast(`❌ Push failed: ${error.message}`, 'error');
       }
     },
     
@@ -2779,11 +5082,21 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
     },
     
     loadPreset: (type) => {
-      if (confirm('This will replace your current schema. Continue?')) {
-        state.schema = JSON.parse(JSON.stringify(schemaPresets[type]));
-        saveState();
-        showToast(`Loaded ${type} preset`, 'success');
-        render();
+      try {
+        if (!schemaPresets[type]) {
+          showToast(`Preset "${type}" not found!`, 'error');
+          console.error('Available presets:', Object.keys(schemaPresets));
+          return;
+        }
+        if (confirm('This will replace your current schema. Continue?')) {
+          state.schema = JSON.parse(JSON.stringify(schemaPresets[type]));
+          saveState();
+          showToast(`Loaded ${type} preset (${state.schema.length} fields)`, 'success');
+          render();
+        }
+      } catch (e) {
+        console.error('Error loading preset:', e);
+        showToast(`Error: ${e.message}`, 'error');
       }
     },
     
@@ -2804,18 +5117,222 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
         try {
           const imported = JSON.parse(e.target.result);
           if (Array.isArray(imported)) {
-            state.schema = imported;
+            // Check the format and convert if needed
+            let convertedSchema;
+            
+            // Format 1: Already in correct format (has 'name' and 'type')
+            if (imported[0] && imported[0].name && imported[0].type) {
+              convertedSchema = imported;
+            }
+            // Format 2: Simple format with 'Field' and 'Description' (like Ashoka Datalake format)
+            else if (imported[0] && (imported[0].Field || imported[0].field)) {
+              convertedSchema = imported.map((item, index) => {
+                const fieldName = item.Field || item.field || item.name || `Field ${index + 1}`;
+                const description = item.Description || item.description || '';
+                
+                // Infer type from field name - keep it simple, mostly text
+                let fieldType = 'text';
+                const nameLower = fieldName.toLowerCase();
+                
+                if (nameLower.includes('url') || nameLower.includes('link')) {
+                  fieldType = 'url';
+                } else if (nameLower === 'last updated' || nameLower === 'date' || nameLower === 'last_updated') {
+                  // Only exact matches for date type
+                  fieldType = 'date';
+                } else if (nameLower.includes('description') || nameLower.includes('notes') || nameLower.includes('variables') || nameLower.includes('indicators') || nameLower.includes('quality')) {
+                  fieldType = 'longtext';
+                } else if (nameLower.includes('tag') || nameLower.includes('keyword')) {
+                  fieldType = 'tags';
+                }
+                // Note: NOT auto-detecting enum - let AI infer text values instead
+                
+                // Determine if required (title, source, publisher usually are)
+                const isRequired = nameLower.includes('title') || nameLower.includes('publisher') || nameLower.includes('source');
+                
+                // AI should infer almost all fields (except URL which user provides)
+                const aiInfer = !nameLower.includes('url') && !nameLower.includes('link');
+                
+                return {
+                  id: String(index + 1),
+                  name: fieldName,
+                  type: fieldType,
+                  required: isRequired,
+                  aiInfer: aiInfer,
+                  description: description
+                };
+              });
+            }
+            // Format 3: Just an array of field names (strings)
+            else if (typeof imported[0] === 'string') {
+              convertedSchema = imported.map((name, index) => ({
+                id: String(index + 1),
+                name: name,
+                type: 'text',
+                required: false,
+                aiInfer: true
+              }));
+            }
+            else {
+              throw new Error('Unrecognized schema format');
+            }
+            
+            state.schema = convertedSchema;
             saveState();
-            showToast('Schema imported successfully', 'success');
+            showToast(`Schema imported successfully (${convertedSchema.length} fields)`, 'success');
             render();
+          } else {
+            throw new Error('Schema must be an array');
           }
         } catch (error) {
-          showToast('Failed to import schema: Invalid JSON', 'error');
+          console.error('Import error:', error);
+          showToast('Failed to import schema: ' + error.message, 'error');
         }
       };
       reader.readAsText(file);
+      // Reset input so same file can be imported again
+      event.target.value = '';
     },
     
+    // ============================================
+    // CUSTOM SCHEMA MANAGEMENT
+    // ============================================
+    
+    /**
+     * Save current schema as the default schema
+     */
+    saveAsDefaultSchema: () => {
+      if (state.schema.length === 0) {
+        showToast('Cannot save empty schema as default', 'error');
+        return;
+      }
+      
+      state.defaultSchema = JSON.parse(JSON.stringify(state.schema));
+      saveState();
+      showToast(`✅ Current schema (${state.schema.length} fields) saved as default!`, 'success');
+      render();
+    },
+    
+    /**
+     * Load the saved default schema
+     */
+    loadDefaultSchema: () => {
+      if (!state.defaultSchema) {
+        showToast('No default schema saved', 'error');
+        return;
+      }
+      
+      if (confirm('This will replace your current schema with your saved default. Continue?')) {
+        state.schema = JSON.parse(JSON.stringify(state.defaultSchema));
+        saveState();
+        showToast(`✅ Loaded default schema (${state.schema.length} fields)`, 'success');
+        render();
+      }
+    },
+    
+    /**
+     * Clear the saved default schema
+     */
+    clearDefaultSchema: () => {
+      if (confirm('Remove your saved default schema?')) {
+        state.defaultSchema = null;
+        saveState();
+        showToast('Default schema cleared', 'success');
+        render();
+      }
+    },
+    
+    /**
+     * Save current schema as a custom named schema
+     */
+    saveCustomSchema: () => {
+      if (state.schema.length === 0) {
+        showToast('Cannot save empty schema', 'error');
+        return;
+      }
+      
+      const name = prompt('Enter a name for this custom schema:');
+      if (!name || !name.trim()) return;
+      
+      const cleanName = name.trim();
+      
+      // Check if name already exists
+      if (state.customSchemas && state.customSchemas[cleanName]) {
+        if (!confirm(`A schema named "${cleanName}" already exists. Overwrite it?`)) {
+          return;
+        }
+      }
+      
+      // Initialize customSchemas if needed
+      if (!state.customSchemas) {
+        state.customSchemas = {};
+      }
+      
+      state.customSchemas[cleanName] = JSON.parse(JSON.stringify(state.schema));
+      saveState();
+      showToast(`✅ Schema "${cleanName}" saved (${state.schema.length} fields)`, 'success');
+      render();
+    },
+    
+    /**
+     * Load a custom schema by name
+     */
+    loadCustomSchema: (name) => {
+      if (!state.customSchemas || !state.customSchemas[name]) {
+        showToast(`Custom schema "${name}" not found`, 'error');
+        return;
+      }
+      
+      if (confirm(`Load custom schema "${name}"? This will replace your current schema.`)) {
+        state.schema = JSON.parse(JSON.stringify(state.customSchemas[name]));
+        saveState();
+        showToast(`✅ Loaded "${name}" (${state.schema.length} fields)`, 'success');
+        render();
+      }
+    },
+    
+    /**
+     * Delete a custom schema
+     */
+    deleteCustomSchema: (name) => {
+      if (!state.customSchemas || !state.customSchemas[name]) {
+        showToast(`Custom schema "${name}" not found`, 'error');
+        return;
+      }
+      
+      if (confirm(`Delete custom schema "${name}"? This cannot be undone.`)) {
+        delete state.customSchemas[name];
+        saveState();
+        showToast(`Deleted schema "${name}"`, 'success');
+        render();
+      }
+    },
+    
+    /**
+     * Rename a custom schema
+     */
+    renameCustomSchema: (oldName) => {
+      if (!state.customSchemas || !state.customSchemas[oldName]) {
+        showToast(`Custom schema "${oldName}" not found`, 'error');
+        return;
+      }
+      
+      const newName = prompt(`Rename "${oldName}" to:`, oldName);
+      if (!newName || !newName.trim() || newName.trim() === oldName) return;
+      
+      const cleanName = newName.trim();
+      
+      if (state.customSchemas[cleanName]) {
+        showToast(`A schema named "${cleanName}" already exists`, 'error');
+        return;
+      }
+      
+      state.customSchemas[cleanName] = state.customSchemas[oldName];
+      delete state.customSchemas[oldName];
+      saveState();
+      showToast(`Renamed to "${cleanName}"`, 'success');
+      render();
+    },
+
     // File upload handling
     handleUpload: async (event) => {
       const file = event.target.files[0];
@@ -3046,6 +5563,165 @@ ${isWebSearch ? '- Prioritize information from your web search results for accur
           state.currentDataset = dataset;
         }
       }
+    },
+    
+    /**
+     * Regenerate a single field using judge feedback (or custom feedback)
+     */
+    regenerateWithFeedback: async (datasetId, fieldName, customFeedback = null) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      if (!dataset) return;
+      
+      const quality = dataset.quality?.[fieldName];
+      if (!quality) {
+        showToast('No feedback available for this field', 'error');
+        return;
+      }
+      
+      if ((quality.attempts || 1) >= 3) {
+        showToast('Maximum regeneration attempts (3) reached', 'warning');
+        return;
+      }
+      
+      state.augmenting = true;
+      state.augmentLog = [`♻️ Regenerating "${fieldName}" with feedback...`];
+      render();
+      
+      try {
+        // Use custom feedback if provided, otherwise use stored feedback
+        const feedback = customFeedback || quality.feedback || 'Improve clarity and specificity';
+        const improvedValue = await regenerateFieldWithFeedback(dataset, fieldName, feedback);
+        
+        if (improvedValue) {
+          dataset.metadata[fieldName] = improvedValue;
+          state.augmentLog.push(`✅ New value generated`);
+          render();
+          
+          // Re-judge the improved field
+          state.augmentLog.push(`⚖️ Re-judging quality...`);
+          render();
+          
+          const newScores = await judgeMetadataQuality(dataset, [fieldName]);
+          
+          if (newScores[fieldName]) {
+            dataset.quality[fieldName] = {
+              score: newScores[fieldName].score,
+              feedback: newScores[fieldName].feedback,
+              attempts: (quality.attempts || 1) + 1,
+              judgedAt: new Date().toISOString()
+            };
+            
+            state.augmentLog.push(`📊 New score: ${newScores[fieldName].score}/10`);
+          }
+          
+          saveState();
+          showToast(`Field regenerated (${dataset.quality[fieldName]?.score || '?'}/10)`, 'success');
+        } else {
+          throw new Error('Failed to generate improved value');
+        }
+      } catch (error) {
+        state.augmentLog.push(`❌ Error: ${error.message}`);
+        showToast('Regeneration failed', 'error');
+      }
+      
+      state.augmenting = false;
+      if (state.currentDataset?.id === datasetId) {
+        state.currentDataset = dataset;
+      }
+      render();
+    },
+    
+    /**
+     * Re-judge all fields (useful after manual edits)
+     */
+    rejudgeAllFields: async (datasetId) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      if (!dataset || !dataset.metadata) return;
+      
+      state.augmenting = true;
+      state.augmentLog = ['⚖️ Re-judging all metadata fields...'];
+      render();
+      
+      try {
+        const qualityScores = await judgeMetadataQuality(dataset);
+        
+        // Update quality scores (preserve attempt counts)
+        dataset.quality = dataset.quality || {};
+        Object.entries(qualityScores).forEach(([fieldName, result]) => {
+          const existing = dataset.quality[fieldName] || {};
+          dataset.quality[fieldName] = {
+            score: result.score,
+            feedback: result.feedback,
+            attempts: existing.attempts || 1,
+            judgedAt: new Date().toISOString()
+          };
+        });
+        
+        const scores = Object.values(qualityScores).map(q => q.score).filter(s => typeof s === 'number');
+        const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : 'N/A';
+        
+        state.augmentLog.push(`📊 Overall Quality: ${avgScore}/10`);
+        saveState();
+        showToast(`Quality re-assessed: ${avgScore}/10`, 'success');
+        
+      } catch (error) {
+        state.augmentLog.push(`❌ Error: ${error.message}`);
+        showToast('Judging failed', 'error');
+      }
+      
+      state.augmenting = false;
+      if (state.currentDataset?.id === datasetId) {
+        state.currentDataset = dataset;
+      }
+      render();
+    },
+    
+    /**
+     * Accept current value - marks field as accepted (score becomes 10)
+     */
+    acceptCurrentValue: (datasetId, fieldName) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      if (!dataset || !dataset.quality?.[fieldName]) return;
+      
+      dataset.quality[fieldName] = {
+        ...dataset.quality[fieldName],
+        score: 10,
+        feedback: 'Accepted by user',
+        accepted: true,
+        acceptedAt: new Date().toISOString()
+      };
+      
+      saveState();
+      showToast(`"${fieldName}" accepted`, 'success');
+      
+      if (state.currentDataset?.id === datasetId) {
+        state.currentDataset = dataset;
+      }
+      render();
+    },
+    
+    /**
+     * Dismiss feedback - hides feedback panel without changing score
+     */
+    dismissFeedback: (datasetId, fieldName) => {
+      const dataset = state.datasets.find(d => d.id === datasetId);
+      if (!dataset || !dataset.quality?.[fieldName]) return;
+      
+      // Set score to 7 to hide feedback panel (but preserve original score in a different field)
+      dataset.quality[fieldName] = {
+        ...dataset.quality[fieldName],
+        dismissed: true,
+        originalScore: dataset.quality[fieldName].score,
+        score: 7 // This hides the feedback panel
+      };
+      
+      saveState();
+      showToast(`Feedback dismissed for "${fieldName}"`, 'info');
+      
+      if (state.currentDataset?.id === datasetId) {
+        state.currentDataset = dataset;
+      }
+      render();
     },
     
     inferSingleField: async (datasetId, fieldId) => {
@@ -3466,7 +6142,7 @@ RULES:
 })();
 
 // Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', App.init);
+document.addEventListener("DOMContentLoaded", App.init);
   </script>
 </body>
 </html>
